@@ -18,13 +18,13 @@ export default function SideBar({ setLoginData}) {
     setIsCollapse(!isCollapse)
    }
      useEffect(() => {
-    const width = isCollapse ? '80px' : '250px'; // width الافتراضي
+    const width = isCollapse ? '80px' : '250px'; 
     document.documentElement.style.setProperty('--sidebar-w', width);
   }, [isCollapse]);
   return (
   <>
   <div className="container-sidebar">
-    <Sidebar collapsed={isCollapse} className=' position-fixed '>
+    <Sidebar collapsed={isCollapse} className=' position-fixed sidebar '>
   <Menu>
      
         <img onClick={toggleCollapse} className='cursor-pointer my-4 w-50 mx-3' src={logoside} alt=""  />

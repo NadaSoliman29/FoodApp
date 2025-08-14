@@ -25,7 +25,7 @@ export default function CategoriesList() {
     handleClose()
     setCategoriesList(response.data)
          toast.success("Deleted Successfully")
-    // getAllData()
+     getAllData()
     } catch (error) {
        toast.error(error.response?.data?.message || "Try Again");
     }
@@ -74,8 +74,8 @@ export default function CategoriesList() {
       <button className='btn btn  text-white btncolor'> Add New Category  </button>
      </div>
      <div className="data p-3">
-      {categoriesList.length>0?   <div className="table-wrap rounded-4 overflow-hidden ">
-          <table className="table mb-0 align-middle">
+      {categoriesList.length>0?   <div className="table-wrap rounded-4 ">
+    <table className="table mb-0 align-middle ">
     <thead className="bg-light">
           <tr className=' text-center'>
             <th className="py-3 ps-4">Id</th>
@@ -87,7 +87,7 @@ export default function CategoriesList() {
             <th className="py-3 text-end pe-4">Actions</th>
           </tr>
         </thead>
-  <tbody>
+  <tbody >
     {categoriesList.map((item)=>
     <tr className=' text-center' key={item.id}>
       <td>{item.id}</td>

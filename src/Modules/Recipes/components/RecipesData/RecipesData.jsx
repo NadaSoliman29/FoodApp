@@ -104,7 +104,7 @@ export default function RecipesData() {
 
               <div className="">
                 <select {...register('categoriesIds',{required:"Field is Required"})} className="form-select form-control pe-5 form-soft">
-                <option value="">Categ</option>
+                
 {categoriesList.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
 
 

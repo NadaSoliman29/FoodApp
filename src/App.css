@@ -103,6 +103,10 @@ input {
 .container-sidebar .ps-menu-button{
   color: #FFFFFF !important;
   transition: all 1s ;
+  -webkit-transition: all 1s ;
+  -moz-transition: all 1s ;
+  -ms-transition: all 1s ;
+  -o-transition: all 1s ;
 }
 .container-sidebar .ps-menu-button:hover{
  background-color: rgba(0 , 146 , 77 , 0.2) !important;
@@ -182,4 +186,11 @@ white-space: pre-line;
 }
 .savebtn{
         width: 12%;
+}
+.sidebar{
+  transition: all .2s !important;
+  -webkit-transition: all .2s !important;
+  -moz-transition: all .2s !important;
+  -ms-transition: all .2s !important;
+  -o-transition: all .2s !important;
 }
