@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import logo from '../../../../assets/images/logo (2).png'
 
 export default function Resetpassword() {
-  const { register, formState: { errors }, handleSubmit, watch } = useForm()
+  const { register, formState:{errors ,isSubmitting}, handleSubmit, watch } = useForm()
   const navigate = useNavigate()
 
   const [showPassword, setShowPassword] = useState(false)
@@ -17,14 +18,22 @@ export default function Resetpassword() {
       toast.success("Password Reset Successfully!")
       navigate('/login')
     } catch (error) {
-      toast.error("Please insert correct data")
+          toast.error(error.response?.data?.message || "Please insert correct data");
     }
   }
 
-  const passwordValue = watch('password')
+  const passwordValue = watch('password');
+
+ 
 
   return (
     <>
+       <div className="col-md-4 bg-white rounded-2 px-3 py-4">
+                <div>
+                <div className="logo-container text-center">
+                  <img className='w-50' src={logo} alt=''/>
+               
+              </div>
       <div className="title">
         <h4>Reset Password</h4>
         <p className='text-muted'>Please Enter Your OTP or Check Your Inbox</p>
@@ -75,7 +84,12 @@ export default function Resetpassword() {
           </span>
           <input
             {...register('password', {
-              required: 'Password is Required!'
+              required: 'Password is Required!',
+               pattern:{
+               value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/,
+               message:"The password must include at least one lowercase letter, one uppercase letter, one digit, one special character, and be at least 6 characters long."
+              }
+              
             })}
             type={showPassword ? 'text' : 'password'}
             className="form-control border-0"
@@ -107,8 +121,10 @@ export default function Resetpassword() {
         </div>
         {errors.confirmPassword && <div className='text-danger mb-1'>{errors.confirmPassword.message}</div>}
 
-        <button className='btn btn w-100 text-white btncolor'>Reset Password</button>
+        <button disabled={isSubmitting} className='btn btn w-100 text-white btncolor'>Reset Password</button>
       </form>
+      </div>
+      </div>
     </>
   )
 }

@@ -1,5 +1,5 @@
 
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, Navigate, RouterProvider, useNavigate } from 'react-router-dom'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import '@fortawesome/fontawesome-free/css/all.min.css'
@@ -21,17 +21,27 @@ import CategoriesData from './Modules/Categories/components/CategoriesData/Categ
 import FavList from './Modules/Favourites/components/FavList/FavList'
 import UserList from './Modules/Users/components/UserList/UserList'
 import { ToastContainer } from 'react-toastify'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { jwtDecode } from 'jwt-decode'
 import ProtectedRoute from './Modules/Shared/components/ProtectedRoute/ProtectedRoute'
 
 function App() {
 const [loginData, setLoginData] = useState(null);
+
+
 const getLoginData =()=>{
   let encodedToken = localStorage.getItem("token");
   let decodedToken = jwtDecode(encodedToken);
   setLoginData(decodedToken);
 }
+
+useEffect(() => {
+ if(localStorage.getItem("token"))
+  getLoginData()
+
+}, [])
+
+ 
   const routes = createBrowserRouter([
     {
    path: '' , element:<AuthLayout/>,
@@ -47,13 +57,13 @@ const getLoginData =()=>{
    ]
     },
     {
- path: 'dashboard' , element: <ProtectedRoute loginData={loginData}><MasterLayout/></ProtectedRoute>,
+ path: 'dashboard' , element: <ProtectedRoute loginData={loginData}><MasterLayout  setLoginData={setLoginData} loginData={loginData} /></ProtectedRoute>,
    errorElement:<NotFound/>,
    children:[
-    {index:true,element: <Dashboard/>},
-    {path:'recipes-list',element: <Recipeslist/>},
+    {index:true,element: <Dashboard loginData={loginData}/>},
+    {path:'recipes',element: <Recipeslist/>},
     {path:'recipes-data',element: <RecipesData/>},
-    {path:'categories-list',element: <CategoriesList/>},
+    {path:'categories',element: <CategoriesList/>},
     {path:'categories-data',element: <CategoriesData/>},
     {path:'favs',element: <FavList/>},
     {path:'users',element: <UserList/>},

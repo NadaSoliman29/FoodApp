@@ -1,20 +1,20 @@
 import React from 'react'
-import Sidebar from '../SidBar/Sidebar'
 import Navbar from '../Navbar/Navbar'
 import Header from '../Header/Header'
 import { Outlet } from 'react-router-dom'
+import SideBar from '../SidBar/Sidebar'
 
-export default function MasterLayout() {
+export default function MasterLayout({setLoginData,loginData}) {
   return (
     <>
     
-    <div className='d-flex'>
-      <div className="w-25 bg-danger">
-        <Sidebar/>
+    <div className='d-flex vh-100'>
+      <div className="">
+        <SideBar {...{setLoginData}} />
       </div>
-      <div className='bg-warning w-100'>
-        <Navbar/>
-        <Header/>
+      <div className='w-100 page-content p-4'>
+        <Navbar loginData={loginData}/>
+      
         <Outlet/>
       </div>
     </div>
