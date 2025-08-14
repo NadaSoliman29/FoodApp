@@ -133,7 +133,7 @@ export default function CategoriesList() {
    
   </tbody>
   </table>
-</div> : <Nodata/>}
+</div> : <Nodata/>}  
    
      </div>
      </>
