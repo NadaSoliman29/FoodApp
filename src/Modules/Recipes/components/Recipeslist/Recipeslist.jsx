@@ -5,7 +5,7 @@ import Header from '../../../Shared/components/Header/Header'
 import axios from 'axios'
 import Nodata from '../../../Shared/components/NoData/Nodata'
 import NoRecipesImg from "../../../../assets/images/norecipes.jpg"
-import { useNavigate } from 'react-router-dom'
+import { Link, Links, useNavigate } from 'react-router-dom'
 
 export default function Recipeslist() {
     const [respiesList, setRespiesList] = useState([])
@@ -35,7 +35,7 @@ export default function Recipeslist() {
             <h4>Recipes Table Details</h4>
             <p>You can check all details</p>
           </div>
-          <button onClick={()=>navigate('/dashboard/recipes-data')} className='btn btn  text-white btncolor'> Add New Recipe  </button>
+          <Link to={'/dashboard/recipes-data/Add-recipe'}  className='btn btn  text-white btncolor'> Add New Recipe  </Link>
          </div>
          <div className="data p-3">
           {respiesList.length>0?   <div className="table-wrap rounded-4 overflow-hidden ">
@@ -81,9 +81,10 @@ export default function Recipeslist() {
                       </button>
                     </li>
                      <li>
-                      <button className="dropdown-item d-flex align-items-center gap-2" >
+                      
+                      <Link to={'/dashboard/recipes-data/${user.id}'} className="dropdown-item d-flex align-items-center gap-2" >
                         <i className="fa-regular fa-edit maincolor"></i> Edit
-                      </button>
+                      </Link>
                     </li>
                     <li>
                       <button className="dropdown-item d-flex align-items-center gap-2 ">

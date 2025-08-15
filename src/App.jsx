@@ -62,7 +62,8 @@ useEffect(() => {
    children:[
     {index:true,element: <Dashboard loginData={loginData}/>},
     {path:'recipes',element: <Recipeslist/>},
-    {path:'recipes-data',element: <RecipesData/>},
+    {path:'recipes-data/Add-recipe',element: <RecipesData/>},
+    {path:'recipes-data/:id',element: <RecipesData/>},
     {path:'categories',element: <CategoriesList/>},
     {path:'categories-data',element: <CategoriesData/>},
     {path:'favs',element: <FavList/>},

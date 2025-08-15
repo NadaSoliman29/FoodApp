@@ -3,19 +3,29 @@ import FillRecipes from "../../../Shared/components/FillRecipes/FillRecipes";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function RecipesData() {
+  const {id} = useParams()
   const [tagsList, setTagsList] = useState([]);
   const [categoriesList, setCategoriesList] = useState([]);
     const [fileName, setFileName] = useState("");
   const [preview, setPreview] = useState("");
+  const [userDetails, setUserDetails] = useState(null)
   let {register,formState:{errors} , handleSubmit,resetField } = useForm()
     let navigate = useNavigate()
   
     const appendToFormData=(data)=>{
-      console.log(data)
-     const logFormData = new FormData();
+        const logFormData = new FormData();
+
+      const tagId = parseInt(data.tagId, 10);
+    const categoriesIds = parseInt(
+      Array.isArray(data.categoriesIds) ? data.categoriesIds[0] : data.categoriesIds,
+      10
+    );
+
+    if (Number.isNaN(tagId)) { throw new Error("Please select a Tag"); }
+    if (Number.isNaN(categoriesIds)) { throw new Error("Please select a Category"); }
      logFormData.append("name",data?.name);
      logFormData.append("tagId",data?.tagId );
      logFormData.append("price",data?.price );
@@ -24,8 +34,9 @@ export default function RecipesData() {
      logFormData.append("recipeImage",data?.recipeImage[0]);
         return logFormData
    }
+
+  //  AddItemApi
   let onSubmit =async(data)=>{
-    console.log("here")
   let recipeData = appendToFormData(data);
    try {
       let response = await axios.post(
@@ -33,6 +44,26 @@ export default function RecipesData() {
         { headers: { Authorization: localStorage.getItem("token") } }
       );
       console.log(response);
+      
+           toast.success(response?.data?.message||" Recipe created successfully");
+                navigate('/dashboard/recipes')
+    } catch (error) {
+      console.log(error);
+           toast.error(error.response?.data?.message || "Something went wrong");
+      
+    }
+  }
+     //  GetUserDetails
+
+  let getUserDetails =async(data)=>{
+  let recipeData = appendToFormData(data);
+   try {
+      let {data} = await axios.get(
+        `https://upskilling-egypt.com:3006/api/v1/Recipe/${id}`,recipeData,
+        { headers: { Authorization: localStorage.getItem("token") } }
+      );
+      console.log(data)
+        setUserDetails(data)
       
            toast.success(response?.data?.message||" Recipe created successfully");
                 navigate('/dashboard/recipes')
@@ -71,19 +102,21 @@ export default function RecipesData() {
   useEffect(() => {
     getAllTags();
     getAllCategories();
+    if(id)
+    getUserDetails()
   }, []);
   return (
     <>
-      <FillRecipes />
+      <FillRecipes id={id} />
       <div>
-        <h6 className="text-muted mb-3">Add New Item</h6>
+        <h6  className="text-muted mb-3">  {id?'Update Item':'Add New Item'}</h6>
       </div>
 
       <div className="container my-4">
         <div className="row d-flex justify-content-center align-items-center">
            <form onSubmit={handleSubmit(onSubmit)} className="w-75" >
             <div>
-              <input {...register('name',{ required:"Field is Required"})} className="form-control mb-3 form-soft"  placeholder="Recipe Name" />
+              <input {...register('name',{ required:"Field is Required"})} className="form-control mb-3 form-soft"  placeholder="Recipe Name"  />
               {errors.name&& <span className="text-danger">{errors.name.message}</span>}
               <div className="mb-3">
                 <select  {...register('tagId' , {required:"Field is Required"})}  className="form-select pe-5 form-soft" >
@@ -177,7 +210,8 @@ export default function RecipesData() {
                 <button
                   className="btn btn-success  savebtn fw-semibold"
                 >
-                  Save
+                  {id?'Update':"Save"}
+                 
                 </button>
               </div>
             </div>

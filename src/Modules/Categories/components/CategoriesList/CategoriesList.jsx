@@ -13,7 +13,7 @@ import { useForm } from 'react-hook-form'
 export default function CategoriesList() {
    const [categoriesList, setCategoriesList] = useState([])
    const [itemId, setItemId] = useState(0);
-       let {register,formState:{errors , isSubmitting},handleSubmit} = useForm();
+  const { register, handleSubmit, formState:{ errors, isSubmitting }, reset } = useForm();
    
    //  delete model data
    const [show, setShow] = useState(false);
@@ -24,13 +24,32 @@ export default function CategoriesList() {
   }
 
   //add model data 
-
+ const [showForm, setShowForm] = useState(false);
+  const [mode, setMode] = useState('add'); // 'add' | 'edit'
+  const [editingItem, setEditingItem] = useState(null);
    const [showadd, setShowAdd] = useState(false);
   const handleCloseAdd = () => setShowAdd(false);
   const handleShowAdd = () =>{
     
     setShowAdd(true);
   }
+ 
+  const openAdd = () => {
+    setMode('add');
+    setEditingItem(null);
+    reset({ name: '' });
+    setShowForm(true);
+  };
+
+  const openEdit = (item) => {
+    setMode('edit');
+    setEditingItem(item);
+    reset({ name: item?.name || '' });
+    setShowForm(true);
+  };
+
+  const closeForm = () => setShowForm(false);
+
    let deleteCategory = async()=>{
     try {
       let response = await axios.delete(`https://upskilling-egypt.com:3006/api/v1/Category/${itemId}`, 
@@ -56,21 +75,25 @@ export default function CategoriesList() {
   }
 
 // add category
-  let onSubmit= async(data)=>{
-  try {
-      let response = await axios.post('https://upskilling-egypt.com:3006/api/v1/Category/',data,
+
+  const onSubmit = async (data) => {
+    try {
+      if (mode === 'add') {
+          let response = await axios.post('https://upskilling-egypt.com:3006/api/v1/Category/',data,
         {headers:{Authorization:localStorage.getItem("token")}})
-        console.log(response)
-     handleCloseAdd()
-    getAllData()   
-    toast.success(response?.data?.message||" Recipe created successfully");
-      
+        toast.success(response?.data?.message || 'Category created successfully');
+      } else {
+        const response = await axios.put(`https://upskilling-egypt.com:3006/api/v1/Category/${editingItem.id}`,data,
+        {headers:{Authorization:localStorage.getItem("token")}})
+        toast.success(response?.data?.message || 'Category updated successfully');
+        
+      }
+      closeForm();
+      getAllData();
     } catch (error) {
-      console.log(error)
-      toast.error(error.response?.data?.message || "Something went wrong");
-      
+      toast.error(error.response?.data?.message || 'Something went wrong');
     }
-  }
+  };
   useEffect(() => {
  getAllData()
   }, [])
@@ -80,29 +103,29 @@ export default function CategoriesList() {
   return (
    <>
 
-  {/* Add model */}
-  <Modal show={showadd} onHide={handleCloseAdd}>
-          <Modal.Header closeButton>
-            Add Category
-          </Modal.Header>
-        <Modal.Body className=' '>
+  {/* Add  & edit model */}
+  <Modal show={showForm} onHide={closeForm}>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className=' input-group my-2'>
-            <input {...register("name", {required: "Name is Required"})} 
-            type='text' className=' form-control' placeholder='Category Name'  />
-
-          </div>
-           {errors.name && <p className='text-danger mb-1 errormsg'>{errors.name.message}</p>}
-          
-        <div className='text-end'>
-           <hr/>
-             <button disabled={isSubmitting} type='submit'  className='btn btn-success savebtn ' variant='white' >
-         Save
-          </button>
-        </div>
+          <Modal.Header closeButton>
+            {mode === 'add' ? 'Add Category' : 'Edit Category'}
+          </Modal.Header>
+          <Modal.Body>
+            <div className="input-group my-2">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Category Name"
+                {...register('name', { required: 'Name is Required' })}
+              />
+            </div>
+            {errors.name && <p className="text-danger mb-1 errormsg">{errors.name.message}</p>}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button disabled={isSubmitting} type="submit" className="btn btn-success ">
+              {mode === 'add' ? 'Save' : 'Update'}
+            </Button>
+          </Modal.Footer>
         </form>
-        </Modal.Body>
-        
       </Modal>
 
   {/* Add model */}
@@ -127,7 +150,7 @@ export default function CategoriesList() {
         <h4>Categories Table Details</h4>
         <p>You can check all details</p>
       </div>
-      <button className='btn btn  text-white btncolor ' onClick={handleShowAdd}> Add New Category  </button>
+      <button className='btn btn text-white btncolor' onClick={openAdd}>    Add New Category </button>
      </div>
      <div className="data p-3">
       {categoriesList.length>0?   <div className="table-wrap rounded-4 ">
@@ -166,14 +189,17 @@ export default function CategoriesList() {
                   </button>
                   <ul className="dropdown-menu dropdown-menu-end shadow-sm rounded-3 py-2">
                     <li>
-                      <button className="dropdown-item d-flex align-items-center gap-2" >
+                      <button className="dropdown-item d-flex align-items-center gap-2">
                         <i className="fa-regular fa-eye maincolor"></i> View
                       </button>
                     </li>
                      <li>
-                      <button className="dropdown-item d-flex align-items-center gap-2" >
-                        <i className="fa-regular fa-edit maincolor"></i> Edit
-                      </button>
+                      <button
+                              className="dropdown-item d-flex align-items-center gap-2"
+                              onClick={() => openEdit(item)}
+                            >
+                              <i className="fa-regular fa-edit maincolor" /> Edit
+                            </button>
                     </li>
                     <li>
                       <button onClick={()=>handleShow(item.id)} className="dropdown-item d-flex align-items-center gap-2 ">
