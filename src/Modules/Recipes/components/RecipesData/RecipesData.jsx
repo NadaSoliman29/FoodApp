@@ -8,7 +8,9 @@ import { useNavigate } from "react-router-dom";
 export default function RecipesData() {
   const [tagsList, setTagsList] = useState([]);
   const [categoriesList, setCategoriesList] = useState([]);
-  let {register,formState:{errors} , handleSubmit} = useForm()
+    const [fileName, setFileName] = useState("");
+  const [preview, setPreview] = useState("");
+  let {register,formState:{errors} , handleSubmit,resetField } = useForm()
     let navigate = useNavigate()
   
     const appendToFormData=(data)=>{
@@ -105,7 +107,7 @@ export default function RecipesData() {
               <div className="">
                 <select {...register('categoriesIds',{required:"Field is Required"})} className="form-select form-control pe-5 form-soft">
                 
-{categoriesList.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
+              {categoriesList.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
 
 
                 </select>
@@ -123,7 +125,15 @@ export default function RecipesData() {
                 </div>
 
               <div className="mt-3">
-                <input  {...register('recipeImage' )}  type="file" id="itemImage" className="d-none"
+                <input     {...register("recipeImage", {
+              onChange: (e) => {
+            const file = e.target.files?.[0];
+            // if (preview) URL.revokeObjectURL(preview);      // نظافة للذاكرة
+            setFileName(file ? file.name : "");
+            setPreview(file ? URL.createObjectURL(file) : "");
+             },
+             })}
+            type="file" id="itemImage" className="d-none"
                    />
 {errors.recipeImage && <span className="text-danger">{errors.recipeImage.message}</span>}
 
@@ -140,7 +150,20 @@ export default function RecipesData() {
                       Choose an Item Image to Upload
                     </span>
                   </div>
+                   {fileName && (
+                   <div className="mt-2 small text-truncate fw-semibold filename-pill">
+                  {fileName}
+                </div>
+        )}
+
+        
+        {preview && (
+          <div className="mt-2">
+            <img src={preview} alt="preview" className="img-preview" />
+          </div>
+        )}
                 </label>
+
               </div>
               <hr className="m-3" />
 

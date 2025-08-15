@@ -7,16 +7,29 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import nodataImage from "../../../../assets/images/nodata.png"
 import { toast } from 'react-toastify'
+import DeleteConfirmation from '../../../Shared/components/DeleteConfirmation/DeleteConfirmation'
+import { useForm } from 'react-hook-form'
 
 export default function CategoriesList() {
    const [categoriesList, setCategoriesList] = useState([])
    const [itemId, setItemId] = useState(0);
+       let {register,formState:{errors , isSubmitting},handleSubmit} = useForm();
+   
+   //  delete model data
    const [show, setShow] = useState(false);
-
   const handleClose = () => setShow(false);
   const handleShow = (id) =>{
     setItemId(id)
     setShow(true);
+  }
+
+  //add model data 
+
+   const [showadd, setShowAdd] = useState(false);
+  const handleCloseAdd = () => setShowAdd(false);
+  const handleShowAdd = () =>{
+    
+    setShowAdd(true);
   }
    let deleteCategory = async()=>{
     try {
@@ -41,6 +54,23 @@ export default function CategoriesList() {
       console.log(error)
     }
   }
+
+// add category
+  let onSubmit= async(data)=>{
+  try {
+      let response = await axios.post('https://upskilling-egypt.com:3006/api/v1/Category/',data,
+        {headers:{Authorization:localStorage.getItem("token")}})
+        console.log(response)
+     handleCloseAdd()
+    getAllData()   
+    toast.success(response?.data?.message||" Recipe created successfully");
+      
+    } catch (error) {
+      console.log(error)
+      toast.error(error.response?.data?.message || "Something went wrong");
+      
+    }
+  }
   useEffect(() => {
  getAllData()
   }, [])
@@ -50,13 +80,38 @@ export default function CategoriesList() {
   return (
    <>
 
-      <Modal show={show} onHide={handleClose}>
+  {/* Add model */}
+  <Modal show={showadd} onHide={handleCloseAdd}>
+          <Modal.Header closeButton>
+            Add Category
+          </Modal.Header>
+        <Modal.Body className=' '>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className=' input-group my-2'>
+            <input {...register("name", {required: "Name is Required"})} 
+            type='text' className=' form-control' placeholder='Category Name'  />
+
+          </div>
+           {errors.name && <p className='text-danger mb-1 errormsg'>{errors.name.message}</p>}
+          
+        <div className='text-end'>
+           <hr/>
+             <button disabled={isSubmitting} type='submit'  className='btn btn-success savebtn ' variant='white' >
+         Save
+          </button>
+        </div>
+        </form>
+        </Modal.Body>
+        
+      </Modal>
+
+  {/* Add model */}
+
+   {/* delte model */}
+        <Modal show={show} onHide={handleClose}>
           <Modal.Header closeButton></Modal.Header>
         <Modal.Body className=' text-center'>
-              <img  src={nodataImage} alt="No Data " />
-          
-          <h5 className='mt-2 fa-bold'> Delete This Item</h5>
-          <p className=' text-muted'>are you sure you want to delete this item ? if you are sure just<br/> click on delete it</p>
+             <DeleteConfirmation deleteItem={'Category'} />
         </Modal.Body>
         <Modal.Footer>
           <Button  className='btn btn-outline-danger' variant='white' onClick={deleteCategory}>
@@ -64,6 +119,7 @@ export default function CategoriesList() {
           </Button>
         </Modal.Footer>
       </Modal>
+        {/* delte model */}
         <Header title={"Categories Item"} desc={'You can now add your items that any user can order it from the Application and you can edit'}
          imgPath={headerImg} />
      <div className="title d-flex justify-content-between p-3 align-items-center">
@@ -71,7 +127,7 @@ export default function CategoriesList() {
         <h4>Categories Table Details</h4>
         <p>You can check all details</p>
       </div>
-      <button className='btn btn  text-white btncolor'> Add New Category  </button>
+      <button className='btn btn  text-white btncolor ' onClick={handleShowAdd}> Add New Category  </button>
      </div>
      <div className="data p-3">
       {categoriesList.length>0?   <div className="table-wrap rounded-4 ">
