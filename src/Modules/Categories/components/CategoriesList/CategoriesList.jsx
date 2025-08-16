@@ -130,7 +130,7 @@ export default function CategoriesList() {
 
   {/* Add model */}
 
-   {/* delte model */}
+   {/* delete model */}
         <Modal show={show} onHide={handleClose}>
           <Modal.Header closeButton></Modal.Header>
         <Modal.Body className=' text-center'>
@@ -142,7 +142,7 @@ export default function CategoriesList() {
           </Button>
         </Modal.Footer>
       </Modal>
-        {/* delte model */}
+        {/* delete model */}
         <Header title={"Categories Item"} desc={'You can now add your items that any user can order it from the Application and you can edit'}
          imgPath={headerImg} />
      <div className="title d-flex justify-content-between p-3 align-items-center">

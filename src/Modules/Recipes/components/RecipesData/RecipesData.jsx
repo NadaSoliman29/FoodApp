@@ -11,21 +11,12 @@ export default function RecipesData() {
   const [categoriesList, setCategoriesList] = useState([]);
     const [fileName, setFileName] = useState("");
   const [preview, setPreview] = useState("");
-  const [userDetails, setUserDetails] = useState(null)
+  const [itemDetails, setItemDetails] = useState(null)
   let {register,formState:{errors} , handleSubmit,resetField } = useForm()
     let navigate = useNavigate()
   
     const appendToFormData=(data)=>{
         const logFormData = new FormData();
-
-      const tagId = parseInt(data.tagId, 10);
-    const categoriesIds = parseInt(
-      Array.isArray(data.categoriesIds) ? data.categoriesIds[0] : data.categoriesIds,
-      10
-    );
-
-    if (Number.isNaN(tagId)) { throw new Error("Please select a Tag"); }
-    if (Number.isNaN(categoriesIds)) { throw new Error("Please select a Category"); }
      logFormData.append("name",data?.name);
      logFormData.append("tagId",data?.tagId );
      logFormData.append("price",data?.price );
@@ -34,7 +25,6 @@ export default function RecipesData() {
      logFormData.append("recipeImage",data?.recipeImage[0]);
         return logFormData
    }
-
   //  AddItemApi
   let onSubmit =async(data)=>{
   let recipeData = appendToFormData(data);
@@ -53,23 +43,19 @@ export default function RecipesData() {
       
     }
   }
-     //  GetUserDetails
+     //  GetitemDetails
 
-  let getUserDetails =async(data)=>{
-  let recipeData = appendToFormData(data);
+  let getItemDetails =async()=>{
    try {
-      let {data} = await axios.get(
-        `https://upskilling-egypt.com:3006/api/v1/Recipe/${id}`,recipeData,
+      let response= await axios.get(
+        `https://upskilling-egypt.com:3006/api/v1/Recipe/${id}`, 
         { headers: { Authorization: localStorage.getItem("token") } }
       );
-      console.log(data)
-        setUserDetails(data)
-      
-           toast.success(response?.data?.message||" Recipe created successfully");
-                navigate('/dashboard/recipes')
+      console.log(response)
+        setItemDetails(response.data)
+
     } catch (error) {
       console.log(error);
-           toast.error(error.response?.data?.message || "Something went wrong");
       
     }
   }
@@ -103,11 +89,12 @@ export default function RecipesData() {
     getAllTags();
     getAllCategories();
     if(id)
-    getUserDetails()
+    getItemDetails()
   }, []);
   return (
     <>
       <FillRecipes id={id} />
+      
       <div>
         <h6  className="text-muted mb-3">  {id?'Update Item':'Add New Item'}</h6>
       </div>
@@ -116,10 +103,10 @@ export default function RecipesData() {
         <div className="row d-flex justify-content-center align-items-center">
            <form onSubmit={handleSubmit(onSubmit)} className="w-75" >
             <div>
-              <input {...register('name',{ required:"Field is Required"})} className="form-control mb-3 form-soft"  placeholder="Recipe Name"  />
+              <input  {...register('name',{ required:"Field is Required"})} className="form-control mb-3 form-soft"  placeholder="Recipe Name"  />
               {errors.name&& <span className="text-danger">{errors.name.message}</span>}
               <div className="mb-3">
-                <select  {...register('tagId' , {required:"Field is Required"})}  className="form-select pe-5 form-soft" >
+                <select /* defaultValue={id?itemDetails.tagId : "" } */ {...register('tagId' , {required:"Field is Required"})}  className="form-select pe-5 form-soft" >
 
                   <option value="">Tag</option>
                {tagsList.map(tag => <option  key={tag.id} value={tag.id}>{tag.name}</option>)}  
@@ -129,7 +116,7 @@ export default function RecipesData() {
               </div>
 
               <div className="input-group mb-3 "> 
-                <input {...register('price' , {required:"Field is Required"})} className="form-control form-soft"  placeholder="350.99" />
+                <input /* defaultValue={id?itemDetails.price : "" } */ {...register('price' , {required:"Field is Required"})} className="form-control form-soft"  placeholder="price" />
                      {errors.price&& <span className="text-danger">{errors.price.message}</span>}
 
                 <span className="input-group-text  fw-semibold">
@@ -138,7 +125,7 @@ export default function RecipesData() {
               </div>
 
               <div className="">
-                <select {...register('categoriesIds',{required:"Field is Required"})} className="form-select form-control pe-5 form-soft">
+                <select  /* defaultValue={id?itemDetails.category[0]?.id : "" }*/  {...register('categoriesIds',{required:"Field is Required"})} className="form-select form-control pe-5 form-soft">
                 
               {categoriesList.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
 
@@ -152,13 +139,13 @@ export default function RecipesData() {
                 <label className="form-label small mb-3" htmlFor="desc">
                   {/* Description <span className="text-danger">*</span> */}
                 </label>
-                <textarea  {...register('description' , {required:"Field is Required"})} id="desc" placeholder="Description"className="form-control form-soft" rows="4" />
+                <textarea /* defaultValue={id?itemDetails.description : "" }*/  {...register('description' , {required:"Field is Required"})} id="desc" placeholder="Description"className="form-control form-soft" rows="4" />
                  {errors.description && <span className="text-danger">{errors.description.message}</span>}
 
                 </div>
 
               <div className="mt-3">
-                <input     {...register("recipeImage", {
+                <input  /*defaultValue={id?itemDetails.recipeImage : "" }*/ {...register("recipeImage", {
               onChange: (e) => {
             const file = e.target.files?.[0];
             // if (preview) URL.revokeObjectURL(preview);      // نظافة للذاكرة

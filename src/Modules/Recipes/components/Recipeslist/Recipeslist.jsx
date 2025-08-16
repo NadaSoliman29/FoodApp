@@ -5,10 +5,17 @@ import Header from '../../../Shared/components/Header/Header'
 import axios from 'axios'
 import Nodata from '../../../Shared/components/NoData/Nodata'
 import NoRecipesImg from "../../../../assets/images/norecipes.jpg"
-import { Link, Links, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
+import DeleteConfirmation from '../../../Shared/components/DeleteConfirmation/DeleteConfirmation'
+import { toast } from 'react-toastify'
 
 export default function Recipeslist() {
     const [respiesList, setRespiesList] = useState([])
+       const [categoriesList, setCategoriesList] = useState([])
+    
+       const [itemId, setItemId] = useState(0);
   let getAllData = async()=>{
     try {
       let response = await axios.get('https://upskilling-egypt.com:3006/api/v1/Recipe/?pageSize=10&pageNumber=1', 
@@ -19,6 +26,31 @@ export default function Recipeslist() {
       console.log(error)
     }
   }
+     
+     //  delete model data
+     const [show, setShow] = useState(false);
+    const handleClose = () => setShow(false);
+    const handleShow = (id) =>{
+      setItemId(id)
+      setShow(true);
+    }
+
+
+// Delete Recipes 
+
+ let deleteCategory = async()=>{
+    try {
+      let response = await axios.delete(`https://upskilling-egypt.com:3006/api/v1/Recipe/${itemId}`, 
+        {headers:{Authorization:localStorage.getItem("token")}})
+    handleClose()
+    setCategoriesList(response.data)
+         toast.success("Deleted Successfully")
+     getAllData()
+    } catch (error) {
+       toast.error(error.response?.data?.message || "Try Again");
+    }
+   }
+
   useEffect(() => {
  getAllData()
   }, [])
@@ -30,6 +62,19 @@ export default function Recipeslist() {
    
       <Header title={"Recipes Items"} desc={'You can now add your items that any user can order it from the Application and you can edit'}
        imgPath={headerImg} />
+          {/* delete model */}
+        <Modal show={show} onHide={handleClose}>
+          <Modal.Header closeButton></Modal.Header>
+        <Modal.Body className=' text-center'>
+             <DeleteConfirmation deleteItem={'Category'} />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button  className='btn btn-outline-danger' variant='white' onClick={deleteCategory}>
+          Delete This Item
+          </Button>
+        </Modal.Footer>
+      </Modal>
+        {/* delete model */}
      <div className="title d-flex justify-content-between p-3 align-items-center">
           <div className="description">
             <h4>Recipes Table Details</h4>
@@ -54,6 +99,8 @@ export default function Recipeslist() {
       <tbody>
         {respiesList.map((item)=>
        <tr className=' text-center' key={item.id}>
+              <td className="fw-medium text-start">{item.id}</td>
+
               <td className="fw-medium text-start">{item.name}</td>
               <td>{item.imagePath ? <img className='table-img' src={`https://upskilling-egypt.com:3006/${item.imagePath}`} alt=''/> : <img className='table-img' src={NoRecipesImg} alt=''/>}</td>
 
@@ -82,12 +129,12 @@ export default function Recipeslist() {
                     </li>
                      <li>
                       
-                      <Link to={'/dashboard/recipes-data/${user.id}'} className="dropdown-item d-flex align-items-center gap-2" >
+                      <Link to={`/dashboard/recipes-data/${item.id}`} className="dropdown-item d-flex align-items-center gap-2" >
                         <i className="fa-regular fa-edit maincolor"></i> Edit
                       </Link>
                     </li>
                     <li>
-                      <button className="dropdown-item d-flex align-items-center gap-2 ">
+                      <button  onClick={()=>handleShow(item.id)} className="dropdown-item d-flex align-items-center gap-2 ">
                         <i className="fa-regular fa-trash-can maincolor"></i> Delete
                       </button>
                     </li>
