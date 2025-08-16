@@ -99,8 +99,6 @@ export default function Recipeslist() {
       <tbody>
         {respiesList.map((item)=>
        <tr className=' text-center' key={item.id}>
-              <td className="fw-medium text-start">{item.id}</td>
-
               <td className="fw-medium text-start">{item.name}</td>
               <td>{item.imagePath ? <img className='table-img' src={`https://upskilling-egypt.com:3006/${item.imagePath}`} alt=''/> : <img className='table-img' src={NoRecipesImg} alt=''/>}</td>
 
