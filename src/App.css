@@ -208,3 +208,6 @@ white-space: pre-line;
   object-fit: cover;
   border: 1px solid #e9ecef;
 }
+.header{
+  background: url("./assets/images/Circels.svg");
+}

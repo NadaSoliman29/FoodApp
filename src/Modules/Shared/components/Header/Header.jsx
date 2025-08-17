@@ -7,7 +7,7 @@ export default function Header({title,desc,imgPath}) {
   return (
   <>
   <div className="container-fluid my-3">
-    <div className="row bgheader borderall ">
+    <div className="row bgheader borderall header ">
      <div className="col-md-8 d-flex align-items-center">
       <div className='m-3'>
         <h3 className=' text-white'>{title} </h3>
