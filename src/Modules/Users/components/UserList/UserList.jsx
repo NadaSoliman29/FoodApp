@@ -44,7 +44,7 @@ const prevGroup = () => {
      
    const [itemId, setItemId] = useState(0);
   const { register, handleSubmit, formState:{ errors, isSubmitting }, reset } = useForm();
-   
+      const [nameValue, setNameValue] = useState([])
    //  delete model data
    const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
@@ -76,10 +76,10 @@ const prevGroup = () => {
    
    }
   
- let getAllUsers = async (ps = pageSize, pn = currentPage) => {
+ let getAllUsers = async (ps = pageSize, pn = currentPage,userName) => {
   try {
     const response = await axiosInstance.get(`${USERS_URLS.GETUSERS}`, {
-      params: { pageSize: ps, pageNumber: pn },
+      params: { pageSize: ps, pageNumber: pn ,userName},
     });
     setUsersList(response.data?.data || []);
     setTotalPages(response.data?.totalNumberOfPages || 1);
@@ -89,7 +89,10 @@ const prevGroup = () => {
     console.log(error);
   }
 };
-
+  const getNameValue =(input)=>{
+ setNameValue(input.target.value)
+ getAllUsers(4,1,input.target.value)
+  }
 useEffect(() => { getAllUsers(4, 1); }, []);
   return (
     <>
@@ -116,8 +119,8 @@ useEffect(() => { getAllUsers(4, 1); }, []);
       </div>
       </div>
         <div className="data p-3">
+      <input type='text' className='form-control  my-2' placeholder='Search by Name...' onChange={getNameValue}/>
             {usersList.length>0?   <div className="table-wrap rounded-4 ">
-           <input type='text' className='form-control w-50' placeholder='Search by Name...'/>
           <table className="table mb-0 align-middle ">
           <thead className="bg-light">
                 <tr className=' text-center'>

@@ -14,6 +14,7 @@ import { axiosInstance, CATEGORIES_URLS } from '../../../../services/Urls'
 export default function CategoriesList() {
    const [categoriesList, setCategoriesList] = useState([])
    const [noOfPages, setNoOfPages] = useState([])
+   const [nameValue, setNameValue] = useState([])
 
    const [itemId, setItemId] = useState(0);
   const { register, handleSubmit, formState:{ errors, isSubmitting }, reset } = useForm();
@@ -69,13 +70,14 @@ export default function CategoriesList() {
        }
    }
   
-  let getAllData = async(pageSize,pageNumber)=>{
+  let getAllData = async(pageSize,pageNumber,name)=>{
       try {
          let response = await axiosInstance.get(`${CATEGORIES_URLS.GET_ALL_CATEGORIES}`, 
            {
              params:
            {  pageSize,
-             pageNumber}
+             pageNumber,
+            name}
            })
       
          setCategoriesList(response.data.data)
@@ -105,6 +107,11 @@ export default function CategoriesList() {
       toast.error(error.response?.data?.message || 'Something went wrong');
     }
   };
+
+  const getNameValue =(input)=>{
+ setNameValue(input.target.value)
+ getAllData(4,1,input.target.value)
+  }
   useEffect(() => {
  getAllData(4,1)
   }, [])
@@ -164,7 +171,10 @@ export default function CategoriesList() {
       <button className='btn btn text-white btncolor' onClick={openAdd}>    Add New Category </button>
      </div>
      <div className="data p-3">
+              <input type='text' className='form-control  my-2' placeholder='Search by Name...' onChange={getNameValue}/>
+
       {categoriesList.length>0?   <div className="table-wrap rounded-4 ">
+   
     <table className="table mb-0 align-middle ">
     <thead className="bg-light">
           <tr className=' text-center'>
