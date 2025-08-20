@@ -17,15 +17,10 @@ import NoUserImage from "../../../../assets/images/noUserImage.png"
 
 export default function UserList() {
      const [usersList, setUsersList] = useState([])
-// بدل noOfPages:
 const [pageSize, setPageSize] = useState(4);
 const [currentPage, setCurrentPage] = useState(1);
 const [totalPages, setTotalPages] = useState(1);
-
-// كام صفحة تظهر في كل مجموعة
 const GROUP_SIZE = 4;
-
-// احسب حدود المجموعة الظاهرة
 const groupStart = Math.floor((currentPage - 1) / GROUP_SIZE) * GROUP_SIZE + 1;
 const groupEnd   = Math.min(groupStart + GROUP_SIZE - 1, totalPages);
 const visiblePages = Array.from({ length: groupEnd - groupStart + 1 }, (_, i) => groupStart + i);
@@ -61,15 +56,7 @@ const prevGroup = () => {
   //add model data 
  const [showForm, setShowForm] = useState(false);
   const [mode, setMode] = useState('add'); // 'add' | 'edit'
-  const [editingItem, setEditingItem] = useState(null);
-   const [showadd, setShowAdd] = useState(false);
-  const handleCloseAdd = () => setShowAdd(false);
-  const handleShowAdd = () =>{
-    
-    setShowAdd(true);
-  }
 
-  const closeForm = () => setShowForm(false);
 
    let deleteUser = async(id)=>{
       try {
@@ -211,7 +198,7 @@ useEffect(() => { getAllUsers(4, 1); }, []);
       </li>
     </ul>
   </nav>
-</div>
+    </div>
 
            </div>
     </>
