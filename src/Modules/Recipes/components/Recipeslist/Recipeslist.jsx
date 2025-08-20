@@ -152,8 +152,9 @@ export default function Recipeslist() {
       </tbody>
       </table>
     </div> : <Nodata/>}
-         <nav aria-label="Page navigation example">
-  <ul className="pagination pt-3">
+   <div className="d-flex justify-content-end pt-3">
+     <nav aria-label="Users pagination ">
+    <ul className="pagination mb-0 newdesign">
     <li className="page-item">
       <a className="page-link" href="#" aria-label="Previous">
         <span aria-hidden="true">&laquo;</span>
@@ -171,6 +172,7 @@ export default function Recipeslist() {
     </li>
   </ul>
 </nav>
+</div>
          </div>
    
    </>

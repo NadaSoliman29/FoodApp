@@ -220,3 +220,15 @@ white-space: pre-line;
   -ms-border-radius: 50px !important;
   -o-border-radius: 50px !important;
 }
+
+ .pagination.newdesign {
+  --bs-pagination-color: #141d21;
+  --bs-pagination-hover-color: #37474F;
+  --bs-pagination-bg: #fff;
+  --bs-pagination-border-color: #BDBDBD;
+  --bs-pagination-hover-bg: #E0E0E0;
+  --bs-pagination-hover-border-color: #BDBDBD;
+  --bs-pagination-active-color: #37474F;
+  --bs-pagination-active-bg: #E0E0E0;
+  --bs-pagination-active-border-color: #BDBDBD;
+}

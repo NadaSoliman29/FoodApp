@@ -12,10 +12,41 @@ import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import NoRecipesImg from "../../../../assets/images/norecipes.jpg"
 import { axiosInstance, baseImgURL, USERS_URLS } from '../../../../services/Urls'
+import NoUserImage from "../../../../assets/images/noUserImage.png"
 
 
 export default function UserList() {
      const [usersList, setUsersList] = useState([])
+// بدل noOfPages:
+const [pageSize, setPageSize] = useState(4);
+const [currentPage, setCurrentPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
+
+// كام صفحة تظهر في كل مجموعة
+const GROUP_SIZE = 4;
+
+// احسب حدود المجموعة الظاهرة
+const groupStart = Math.floor((currentPage - 1) / GROUP_SIZE) * GROUP_SIZE + 1;
+const groupEnd   = Math.min(groupStart + GROUP_SIZE - 1, totalPages);
+const visiblePages = Array.from({ length: groupEnd - groupStart + 1 }, (_, i) => groupStart + i);
+
+// helpers
+const gotoPage = (p) => {
+  if (p < 1 || p > totalPages || p === currentPage) return;
+  getAllUsers(pageSize, p);
+};
+
+const nextGroup = () => {
+  const nextStart = groupStart + GROUP_SIZE;
+  if (nextStart <= totalPages) gotoPage(nextStart);
+};
+
+const prevGroup = () => {
+  const prevStart = groupStart - GROUP_SIZE;
+  if (prevStart >= 1) gotoPage(prevStart);
+};
+
+     
    const [itemId, setItemId] = useState(0);
   const { register, handleSubmit, formState:{ errors, isSubmitting }, reset } = useForm();
    
@@ -58,24 +89,21 @@ export default function UserList() {
    
    }
   
-  let getAllUsers = async(pageSize,pageNumber)=>{
-    try {
-      let response = await axiosInstance.get(`${USERS_URLS.GETUSERS}`, 
-        {
-          params:
-        {  pageSize,
-          pageNumber}
-        })
-     console.log(response)
-      setUsersList(response.data.data)
-    } catch (error) {
-      console.log(error)
-    }
+ let getAllUsers = async (ps = pageSize, pn = currentPage) => {
+  try {
+    const response = await axiosInstance.get(`${USERS_URLS.GETUSERS}`, {
+      params: { pageSize: ps, pageNumber: pn },
+    });
+    setUsersList(response.data?.data || []);
+    setTotalPages(response.data?.totalNumberOfPages || 1);
+    setPageSize(ps);
+    setCurrentPage(pn);
+  } catch (error) {
+    console.log(error);
   }
+};
 
-  useEffect(() => {
- getAllUsers(10,1)
-  }, [])
+useEffect(() => { getAllUsers(4, 1); }, []);
   return (
     <>
      {/* delete model */}
@@ -102,6 +130,7 @@ export default function UserList() {
       </div>
         <div className="data p-3">
             {usersList.length>0?   <div className="table-wrap rounded-4 ">
+           <input type='text' className='form-control w-50' placeholder='Search by Name...'/>
           <table className="table mb-0 align-middle ">
           <thead className="bg-light">
                 <tr className=' text-center'>
@@ -119,7 +148,7 @@ export default function UserList() {
           {usersList.map((item)=>
           <tr className=' text-center' key={item.id}>
             <td>{item.userName}</td>
-            <td>{item.imagePath ? <img className='table-img r50 ' src={`${baseImgURL}${item.imagePath}`} alt=''/> : <img className='table-img' src={NoRecipesImg} alt=''/>}</td>
+            <td>{item.imagePath ? <img className='table-img r50 ' src={`${baseImgURL}${item.imagePath}`} alt=''/> : <img className='table-img' src={NoUserImage} alt=''/>}</td>
                <td>{item.email}</td>
            
             <td>{item.phoneNumber}</td>
@@ -158,7 +187,32 @@ export default function UserList() {
         </tbody>
         </table>
       </div> : <Nodata/>}  
-         
+    <div className="d-flex justify-content-end pt-3">
+     <nav aria-label="Users pagination ">
+    <ul className="pagination mb-0 newdesign">
+      <li className={`page-item ${groupStart === 1 ? 'disabled' : ''}`}>
+        <button className="page-link" onClick={prevGroup} aria-label="Previous group">
+          &laquo;
+        </button>
+      </li>
+
+      {visiblePages.map((p) => (
+        <li key={p} className={`page-item ${p === currentPage ? 'active' : ''}`}>
+          <button className="page-link" onClick={() => gotoPage(p)}>
+            {p}
+          </button>
+        </li>
+      ))}
+
+      <li className={`page-item ${groupEnd === totalPages ? 'disabled' : ''}`}>
+        <button className="page-link" onClick={nextGroup} aria-label="Next group">
+          &raquo;
+        </button>
+      </li>
+    </ul>
+  </nav>
+</div>
+
            </div>
     </>
   )
