@@ -227,7 +227,25 @@ export default function CategoriesList() {
   </tbody>
   </table>
 </div> : <Nodata/>}  
- 
+  <nav aria-label="Page navigation example">
+  <ul className="pagination pt-3">
+    <li className="page-item">
+      <a className="page-link" href="#" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+    {noOfPages.map(pageNo=>
+    <li onClick={()=>getAllData(4,pageNo)} className="page-item cursor-pointer"><a className="page-link">{pageNo}</a></li>
+
+    )}
+   
+    <li className="page-item">
+      <a className="page-link" href="#" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  </ul>
+</nav>
      </div>
      </>
   )
