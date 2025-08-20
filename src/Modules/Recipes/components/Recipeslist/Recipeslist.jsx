@@ -10,21 +10,28 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import DeleteConfirmation from '../../../Shared/components/DeleteConfirmation/DeleteConfirmation'
 import { toast } from 'react-toastify'
+import { axiosInstance, RECIPES_URLS } from '../../../../services/Urls'
 
 export default function Recipeslist() {
     const [respiesList, setRespiesList] = useState([])
        const [categoriesList, setCategoriesList] = useState([])
+       const [noOfPages, setNoOfPages] = useState([])
     
        const [itemId, setItemId] = useState(0);
-  let getAllData = async()=>{
+  let getAllRecipes = async(pageSize,pageNumber)=>{
     try {
-      let response = await axios.get('https://upskilling-egypt.com:3006/api/v1/Recipe/?pageSize=10&pageNumber=1', 
-        {headers:{Authorization:localStorage.getItem("token")}})
-     
-      setRespiesList(response.data.data)
-    } catch (error) {
-      console.log(error)
-    }
+           let response = await axiosInstance.get(`${RECIPES_URLS.GET_ALL_Recipes}`, 
+             {
+               params:
+             {  pageSize,
+               pageNumber}
+             })
+        
+           setRespiesList(response.data.data)
+           setNoOfPages(Array(response.data.totalNumberOfPages).fill().map((_,i)=>i+1))
+         } catch (error) {
+           console.log(error)
+         }
   }
      
      //  delete model data
@@ -44,15 +51,15 @@ export default function Recipeslist() {
         {headers:{Authorization:localStorage.getItem("token")}})
     handleClose()
     setCategoriesList(response.data)
-         toast.success("Deleted Successfully")
-     getAllData()
+       toast.success(response?.data?.message  || "Deleted Successfully")
+    getAllRecipes()
     } catch (error) {
        toast.error(error.response?.data?.message || "Try Again");
     }
    }
 
   useEffect(() => {
- getAllData()
+ getAllRecipes(4,1)
   }, [])
 
 
@@ -66,7 +73,7 @@ export default function Recipeslist() {
         <Modal show={show} onHide={handleClose}>
           <Modal.Header closeButton></Modal.Header>
         <Modal.Body className=' text-center'>
-             <DeleteConfirmation deleteItem={'Category'} />
+             <DeleteConfirmation deleteItem={'Recipe'} />
         </Modal.Body>
         <Modal.Footer>
           <Button  className='btn btn-outline-danger' variant='white' onClick={deleteCategory}>
@@ -145,7 +152,25 @@ export default function Recipeslist() {
       </tbody>
       </table>
     </div> : <Nodata/>}
-       
+         <nav aria-label="Page navigation example">
+  <ul className="pagination pt-3">
+    <li className="page-item">
+      <a className="page-link" href="#" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+    {noOfPages.map(pageNo=>
+    <li onClick={()=>getAllRecipes(4,pageNo)} className="page-item cursor-pointer"><a className="page-link">{pageNo}</a></li>
+
+    )}
+   
+    <li className="page-item">
+      <a className="page-link" href="#" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  </ul>
+</nav>
          </div>
    
    </>

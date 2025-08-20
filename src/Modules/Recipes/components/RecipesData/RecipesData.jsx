@@ -110,7 +110,7 @@ export default function RecipesData() {
               <div className="mb-3">
                 <select  defaultValue={id?itemDetails?.tag.id : "" }  {...register('tagId' , {required:"Field is Required"})}  className="form-select pe-5 form-soft" >
 
-                  <option value="">Tag</option>
+                  <option value="">Select Tag</option>
                {tagsList.map(tag => <option  key={tag.id} value={tag.id}>{tag.name}</option>)}  
                 </select>
                 {errors.tagId&& <span className="text-danger">{errors.tagId.message}</span>}
@@ -128,6 +128,7 @@ export default function RecipesData() {
 
               <div className="">
                 <select   defaultValue={id?itemDetails?.category[0]?.id : "" }  {...register('categoriesIds',{required:"Field is Required"})} className="form-select form-control pe-5 form-soft">
+                  <option value="">Select Category</option>
                 
               {categoriesList.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
 

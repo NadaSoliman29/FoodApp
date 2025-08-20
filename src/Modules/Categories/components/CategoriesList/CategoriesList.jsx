@@ -9,9 +9,12 @@ import nodataImage from "../../../../assets/images/nodata.png"
 import { toast } from 'react-toastify'
 import DeleteConfirmation from '../../../Shared/components/DeleteConfirmation/DeleteConfirmation'
 import { useForm } from 'react-hook-form'
+import { axiosInstance, CATEGORIES_URLS } from '../../../../services/Urls'
 
 export default function CategoriesList() {
    const [categoriesList, setCategoriesList] = useState([])
+   const [noOfPages, setNoOfPages] = useState([])
+
    const [itemId, setItemId] = useState(0);
   const { register, handleSubmit, formState:{ errors, isSubmitting }, reset } = useForm();
    
@@ -50,28 +53,36 @@ export default function CategoriesList() {
 
   const closeForm = () => setShowForm(false);
 
-   let deleteCategory = async()=>{
-    try {
-      let response = await axios.delete(`https://upskilling-egypt.com:3006/api/v1/Category/${itemId}`, 
-        {headers:{Authorization:localStorage.getItem("token")}})
-    handleClose()
-    setCategoriesList(response.data)
-         toast.success("Deleted Successfully")
-     getAllData()
-    } catch (error) {
-       toast.error(error.response?.data?.message || "Try Again");
-    }
+   let deleteCategory = async(id)=>{
+     try {
+         let response = await axiosInstance.delete(
+           `${CATEGORIES_URLS.DELETE_CATEGORY(id)}`, 
+         
+         )
+            handleClose()
+        console.log(response)
+      setCategoriesList(response.data)
+            toast.success(response?.data?.message  || "Deleted Successfully")
+       getAllData()
+       } catch (error) {
+          toast.error(error.response?.data?.message || "Try Again");
+       }
    }
   
-  let getAllData = async()=>{
-    try {
-      let response = await axios.get('https://upskilling-egypt.com:3006/api/v1/Category/?pageSize=10&pageNumber=1', 
-        {headers:{Authorization:localStorage.getItem("token")}})
-     
-      setCategoriesList(response.data.data)
-    } catch (error) {
-      console.log(error)
-    }
+  let getAllData = async(pageSize,pageNumber)=>{
+      try {
+         let response = await axiosInstance.get(`${CATEGORIES_URLS.GET_ALL_CATEGORIES}`, 
+           {
+             params:
+           {  pageSize,
+             pageNumber}
+           })
+      
+         setCategoriesList(response.data.data)
+         setNoOfPages(Array(response.data.totalNumberOfPages).fill().map((_,i)=>i+1))
+       } catch (error) {
+         console.log(error)
+       }
   }
 
 // add category
@@ -95,7 +106,7 @@ export default function CategoriesList() {
     }
   };
   useEffect(() => {
- getAllData()
+ getAllData(4,1)
   }, [])
  
     
@@ -137,7 +148,7 @@ export default function CategoriesList() {
              <DeleteConfirmation deleteItem={'Category'} />
         </Modal.Body>
         <Modal.Footer>
-          <Button  className='btn btn-outline-danger' variant='white' onClick={deleteCategory}>
+          <Button  className='btn btn-outline-danger' variant='white' onClick={() => deleteCategory(itemId)}>
           Delete This Item
           </Button>
         </Modal.Footer>
@@ -216,7 +227,7 @@ export default function CategoriesList() {
   </tbody>
   </table>
 </div> : <Nodata/>}  
-   
+ 
      </div>
      </>
   )
