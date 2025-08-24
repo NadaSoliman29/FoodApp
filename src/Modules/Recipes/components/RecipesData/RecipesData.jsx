@@ -12,7 +12,8 @@ export default function RecipesData() {
     const [fileName, setFileName] = useState("");
   const [preview, setPreview] = useState("");
   const [itemDetails, setItemDetails] = useState(null)
-  let {register,formState:{errors} , handleSubmit,resetField } = useForm()
+    let [isLoading, setIsLoading] = useState(true);
+  let {register,formState:{errors} , handleSubmit,reset } = useForm()
     let navigate = useNavigate()
   
     const appendToFormData=(data)=>{
@@ -53,17 +54,18 @@ export default function RecipesData() {
       );
       console.log(response)
         setItemDetails(response.data)
-
     } catch (error) {
       console.log(error);
       
     }
+         setIsLoading(false)
+
   }
 
   let getAllCategories = async () => {
     try {
       let response = await axios.get(
-        "https://upskilling-egypt.com:3006/api/v1/Category/?pageSize=10&pageNumber=1",
+        "https://upskilling-egypt.com:3006/api/v1/Category/?pageSize=5000&pageNumber=1",
         { headers: { Authorization: localStorage.getItem("token") } }
       );
 
@@ -102,15 +104,15 @@ export default function RecipesData() {
 
       <div className="container my-4">
         <div className="row d-flex justify-content-center align-items-center">
-           <form onSubmit={handleSubmit(onSubmit)} className="w-75" >
+          {isLoading&&id? <div className=" d-flex justify-content-center align-items-center"><span>  <i className="fa-solid fa-spinner fa-spin-pulse text-success fs-1 "></i></span></div> : <form onSubmit={handleSubmit(onSubmit)} className="w-75" >
             <div>
-              <input   defaultValue={id?itemDetails?.name: "" }   {...register('name',{ required:"Field is Required"})} className="form-control mb-3 form-soft"  placeholder="Recipe Name"  />
+              <input   defaultValue={id?itemDetails?.name: "" }   {...register('name',{ required:"Field is Required"})} className="form-control mb-3 form-soft bg-white"  placeholder="Recipe Name"  />
              {/* henaa 3ndii moshkelaa f el ? lmaa bshelaa m4 byrg3 ay 7aga  */}
               {errors.name&& <span className="text-danger">{errors.name.message}</span>}
               <div className="mb-3">
                 <select  defaultValue={id?itemDetails?.tag.id : "" }  {...register('tagId' , {required:"Field is Required"})}  className="form-select pe-5 form-soft" >
 
-                  <option value="">Select Tag</option>
+                  <option value="" disabled hidden>Select Tag</option>
                {tagsList.map(tag => <option  key={tag.id} value={tag.id}>{tag.name}</option>)}  
                 </select>
                 {errors.tagId&& <span className="text-danger">{errors.tagId.message}</span>}
@@ -118,17 +120,18 @@ export default function RecipesData() {
               </div>
 
               <div className="input-group mb-3 "> 
-                <input  defaultValue={id?itemDetails?.price : "" }  {...register('price' , {required:"Field is Required"})} className="form-control form-soft"  placeholder="price" />
-                     {errors.price&& <span className="text-danger">{errors.price.message}</span>}
+                <input  defaultValue={id?itemDetails?.price : "" }  {...register('price' , {required:"Field is Required"})} className="form-control form-soft bg-white"  placeholder="price" />
+                    
 
                 <span className="input-group-text  fw-semibold">
                   EGP
                 </span>
               </div>
+                 {errors.price&& <span className="text-danger">{errors.price.message}</span>}
 
               <div className="">
                 <select   defaultValue={id?itemDetails?.category[0]?.id : "" }  {...register('categoriesIds',{required:"Field is Required"})} className="form-select form-control pe-5 form-soft">
-                  <option value="">Select Category</option>
+                  <option value="" disabled>Select Category</option>
                 
               {categoriesList.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
 
@@ -194,7 +197,7 @@ export default function RecipesData() {
                 <button
                   type="button"
                   className="btn btn-outline-success px-4 me-5 cancelbtn fw-semibold"
-                >
+              onClick={()=>navigate("/dashboard/recipes")}  >
                   Cancel
                 </button>
                 <button
@@ -205,7 +208,8 @@ export default function RecipesData() {
                 </button>
               </div>
             </div>
-          </form>
+          </form> }
+          
         </div>
       </div>
     </>

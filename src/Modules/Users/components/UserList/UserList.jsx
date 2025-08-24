@@ -26,9 +26,13 @@ const groupEnd   = Math.min(groupStart + GROUP_SIZE - 1, totalPages);
 const visiblePages = Array.from({ length: groupEnd - groupStart + 1 }, (_, i) => groupStart + i);
 
 // helpers
+// const gotoPage = (p) => {
+//   if (p < 1 || p > totalPages || p === currentPage) return;
+//   getAllUsers(pageSize, p);
+// };
 const gotoPage = (p) => {
   if (p < 1 || p > totalPages || p === currentPage) return;
-  getAllUsers(pageSize, p);
+  getAllUsers(pageSize, p, nameValue, emailValue);
 };
 
 const nextGroup = () => {
@@ -44,7 +48,11 @@ const prevGroup = () => {
      
    const [itemId, setItemId] = useState(0);
   const { register, handleSubmit, formState:{ errors, isSubmitting }, reset } = useForm();
-      const [nameValue, setNameValue] = useState([])
+      const [nameValue, setNameValue] = useState("")
+      const [emailValue, setEmailValue] = useState("")
+      const [countryValue, setCountryValue] = useState("")
+
+
    //  delete model data
    const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
@@ -76,10 +84,11 @@ const prevGroup = () => {
    
    }
   
- let getAllUsers = async (ps = pageSize, pn = currentPage,userName) => {
+ let getAllUsers = async (ps = pageSize, pn = currentPage,  userName = nameValue,
+  email = emailValue, country=countryValue) => {
   try {
     const response = await axiosInstance.get(`${USERS_URLS.GETUSERS}`, {
-      params: { pageSize: ps, pageNumber: pn ,userName},
+      params: { pageSize: ps, pageNumber: pn ,userName,email,country},
     });
     setUsersList(response.data?.data || []);
     setTotalPages(response.data?.totalNumberOfPages || 1);
@@ -91,7 +100,15 @@ const prevGroup = () => {
 };
   const getNameValue =(input)=>{
  setNameValue(input.target.value)
- getAllUsers(4,1,input.target.value)
+ getAllUsers(4,1,input.target.value,emailValue,countryValue)
+  }
+   const getEmailValue =(input)=>{
+ setEmailValue(input.target.value)
+ getAllUsers(4,1,nameValue, input.target.value,countryValue)
+  }
+   const getCountryValue =(input)=>{
+ setCountryValue(input.target.value)
+ getAllUsers(4,1,nameValue,emailValue,input.target.value)
   }
 useEffect(() => { getAllUsers(4, 1); }, []);
   return (
@@ -119,7 +136,19 @@ useEffect(() => { getAllUsers(4, 1); }, []);
       </div>
       </div>
         <div className="data p-3">
-      <input type='text' className='form-control  my-2' placeholder='Search by Name...' onChange={getNameValue}/>
+     <div className="row g-2 mb-3">
+  <div className="col-12 col-md-4">
+    <input type="text" className="form-control"  placeholder="Search by Name..."  value={nameValue} onChange={getNameValue} />
+  </div>
+  <div className="col-12 col-md-4">
+    <input type="text" className="form-control" placeholder="Search by Email..."   value={emailValue} onChange={getEmailValue} />
+  </div>
+    <div className="col-12 col-md-4">
+    <input type="text" className="form-control" placeholder="Search by Country..." onChange={getCountryValue} />
+  </div>
+</div>
+
+
             {usersList.length>0?   <div className="table-wrap rounded-4 ">
           <table className="table mb-0 align-middle ">
           <thead className="bg-light">

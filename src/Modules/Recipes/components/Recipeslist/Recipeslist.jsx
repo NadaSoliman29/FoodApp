@@ -16,15 +16,17 @@ export default function Recipeslist() {
     const [respiesList, setRespiesList] = useState([])
        const [categoriesList, setCategoriesList] = useState([])
        const [noOfPages, setNoOfPages] = useState([])
+          const [nameValue, setNameValue] = useState([])
     
        const [itemId, setItemId] = useState(0);
-  let getAllRecipes = async(pageSize,pageNumber)=>{
+  let getAllRecipes = async(pageSize,pageNumber,name)=>{
     try {
            let response = await axiosInstance.get(`${RECIPES_URLS.GET_ALL_Recipes}`, 
              {
                params:
              {  pageSize,
-               pageNumber}
+               pageNumber,
+              name}
              })
         
            setRespiesList(response.data.data)
@@ -57,9 +59,13 @@ export default function Recipeslist() {
        toast.error(error.response?.data?.message || "Try Again");
     }
    }
-
+  const getNameValue =(input)=>{
+ setNameValue(input.target.value)
+ getAllRecipes(4,1,input.target.value)
+  }
   useEffect(() => {
  getAllRecipes(4,1)
+ 
   }, [])
 
 
@@ -90,6 +96,7 @@ export default function Recipeslist() {
           <Link to={'/dashboard/recipes-data/Add-recipe'}  className='btn btn  text-white btncolor'> Add New Recipe  </Link>
          </div>
          <div className="data p-3">
+                <input type='text' className='form-control  my-2' placeholder='Search by Name...' onChange={getNameValue}/>
           {respiesList.length>0?   <div className="table-wrap rounded-4 overflow-hidden ">
               <table className="table mb-0 align-middle">
         <thead className="bg-light">

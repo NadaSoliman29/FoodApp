@@ -155,7 +155,7 @@ export default function CategoriesList() {
              <DeleteConfirmation deleteItem={'Category'} />
         </Modal.Body>
         <Modal.Footer>
-          <Button  className='btn btn-outline-danger' variant='white' onClick={() => deleteCategory(itemId)}>
+          <Button  disabled={isSubmitting} className='btn btn-outline-danger' variant='white' onClick={() => deleteCategory(itemId)}>
           Delete This Item
           </Button>
         </Modal.Footer>
