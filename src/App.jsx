@@ -26,20 +26,6 @@ import { jwtDecode } from 'jwt-decode'
 import ProtectedRoute from './Modules/Shared/components/ProtectedRoute/ProtectedRoute'
 
 function App() {
-const [loginData, setLoginData] = useState(null);
-
-
-const getLoginData =()=>{
-  let encodedToken = localStorage.getItem("token");
-  let decodedToken = jwtDecode(encodedToken);
-  setLoginData(decodedToken);
-}
-
-useEffect(() => {
- if(localStorage.getItem("token"))
-  getLoginData()
-
-}, [])
 
  
   const routes = createBrowserRouter([
@@ -47,8 +33,8 @@ useEffect(() => {
    path: '' , element:<AuthLayout/>,
    errorElement:<NotFound/>,
    children:[
-    {index:true,element: <Login getLoginData={getLoginData}/>},
-    {path:'login',element: <Login  getLoginData={getLoginData}/>},
+    {index:true,element: <Login />},
+    {path:'login',element: <Login />},
     {path:'register',element: <Regiser/>},
     {path:'change-pass',element: <Changepassword/>},
     {path:'forget-pass',element: <Forgetpassword/>},
@@ -57,10 +43,10 @@ useEffect(() => {
    ]
     },
     {
- path: 'dashboard' , element: <ProtectedRoute loginData={loginData}><MasterLayout  setLoginData={setLoginData} loginData={loginData} /></ProtectedRoute>,
+ path: 'dashboard' , element: <ProtectedRoute ><MasterLayout /></ProtectedRoute>,
    errorElement:<NotFound/>,
    children:[
-    {index:true,element: <Dashboard loginData={loginData}/>},
+    {index:true,element: <Dashboard />},
     {path:'recipes',element: <Recipeslist/>},
     {path:'recipes-data/Add-recipe',element: <RecipesData/>},// addd
     {path:'recipes-data/:id?',element: <RecipesData/>},// edit

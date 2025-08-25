@@ -1,8 +1,11 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import Header from '../../../Shared/components/Header/Header'
 import FillRecipes from '../../../Shared/components/FillRecipes/FillRecipes'
+import { AuthContext } from '../../../../Context/AuthContext'
 
-export default function Dashboard({ loginData }) {
+export default function Dashboard() {
+        let {loginData}= useContext(AuthContext)
+  
   console.log(loginData)
   return (
 <>
