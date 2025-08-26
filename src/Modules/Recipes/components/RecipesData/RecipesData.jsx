@@ -3,10 +3,13 @@ import FillRecipes from "../../../Shared/components/FillRecipes/FillRecipes";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 export default function RecipesData() {
   const {id} = useParams()
+    const location = useLocation();                              
+  const searchParams = new URLSearchParams(location.search);    
+  const isView = searchParams.get("mode") === "view";      
   const [tagsList, setTagsList] = useState([]);
   const [categoriesList, setCategoriesList] = useState([]);
     const [fileName, setFileName] = useState("");
@@ -23,7 +26,10 @@ export default function RecipesData() {
      logFormData.append("price",data?.price );
      logFormData.append("categoriesIds",data?.categoriesIds);
      logFormData.append("description",data?.description);
-     logFormData.append("recipeImage",data?.recipeImage[0]);
+    //  logFormData.append("recipeImage",data?.recipeImage[0]);
+      if (data?.recipeImage && data.recipeImage[0]) {
+      logFormData.append("recipeImage", data.recipeImage[0]);
+    }
         return logFormData
    }
   //  AddItemApi
@@ -54,6 +60,13 @@ export default function RecipesData() {
       );
       console.log(response)
         setItemDetails(response.data)
+         reset({
+        name: data?.name ?? "",
+        tagId: data?.tag?.id ?? "",
+        price: data?.price ?? "",
+        categoriesIds: data?.category?.[0]?.id ?? "",
+        description: data?.description ?? "",
+      });
     } catch (error) {
       console.log(error);
       
@@ -94,23 +107,27 @@ export default function RecipesData() {
     getItemDetails()
   console.log(itemDetails)
   }, []);
+
+    const existingImageUrl = itemDetails?.imagePath
+    ? `https://upskilling-egypt.com:3006/${itemDetails.imagePath}`
+    : "";
   return (
     <>
       <FillRecipes id={id} />
       
       <div>
-        <h6  className="text-muted mb-3">  {id?'Update Item':'Add New Item'}</h6>
+        <h6  className="text-muted mb-3">  {isView ? "View Item" : id ? "Update Item" : "Add New Item"}</h6>
       </div>
 
       <div className="container my-4">
         <div className="row d-flex justify-content-center align-items-center">
           {isLoading&&id? <div className=" d-flex justify-content-center align-items-center"><span>  <i className="fa-solid fa-spinner fa-spin-pulse text-success fs-1 "></i></span></div> : <form onSubmit={handleSubmit(onSubmit)} className="w-75" >
             <div>
-              <input   defaultValue={id?itemDetails?.name: "" }   {...register('name',{ required:"Field is Required"})} className="form-control mb-3 form-soft bg-white"  placeholder="Recipe Name"  />
+              <input   disabled={isView}     defaultValue={id?itemDetails?.name: ""}   {...register('name',{ required:"Field is Required"})} className="form-control mb-3 form-soft bg-white "  placeholder="Recipe Name"  />
              {/* henaa 3ndii moshkelaa f el ? lmaa bshelaa m4 byrg3 ay 7aga  */}
               {errors.name&& <span className="text-danger">{errors.name.message}</span>}
               <div className="mb-3">
-                <select  defaultValue={id?itemDetails?.tag.id : "" }  {...register('tagId' , {required:"Field is Required"})}  className="form-select pe-5 form-soft" >
+                <select   disabled={isView}     defaultValue={id?itemDetails?.tag.id : ""}  {...register('tagId' , {required:"Field is Required"})}  className="form-select pe-5 form-soft" >
 
                   <option value="" disabled hidden>Select Tag</option>
                {tagsList.map(tag => <option  key={tag.id} value={tag.id}>{tag.name}</option>)}  
@@ -120,7 +137,7 @@ export default function RecipesData() {
               </div>
 
               <div className="input-group mb-3 "> 
-                <input  defaultValue={id?itemDetails?.price : "" }  {...register('price' , {required:"Field is Required"})} className="form-control form-soft bg-white"  placeholder="price" />
+                <input   disabled={isView}    defaultValue={id?itemDetails?.price : ""}  {...register('price' , {required:"Field is Required"})} className="form-control form-soft bg-white"  placeholder="price" />
                     
 
                 <span className="input-group-text  fw-semibold">
@@ -130,7 +147,7 @@ export default function RecipesData() {
                  {errors.price&& <span className="text-danger">{errors.price.message}</span>}
 
               <div className="">
-                <select   defaultValue={id?itemDetails?.category[0]?.id : "" }  {...register('categoriesIds',{required:"Field is Required"})} className="form-select form-control pe-5 form-soft">
+                <select   disabled={isView}     defaultValue={id?itemDetails?.category[0]?.id : ""}  {...register('categoriesIds',{required:"Field is Required"})} className="form-select form-control pe-5 form-soft">
                   <option value="" disabled>Select Category</option>
                 
               {categoriesList.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
@@ -145,22 +162,25 @@ export default function RecipesData() {
                 <label className="form-label small mb-3" htmlFor="desc">
                   {/* Description <span className="text-danger">*</span> */}
                 </label>
-                <textarea  defaultValue={id?itemDetails?.description : "" } {...register('description' , {required:"Field is Required"})} id="desc" placeholder="Description"className="form-control form-soft" rows="4" />
+                <textarea   disabled={isView}     defaultValue={id?itemDetails?.description : "" } {...register('description' , {required:"Field is Required"})} id="desc" placeholder="Description"className="form-control form-soft" rows="4" />
                  {errors.description && <span className="text-danger">{errors.description.message}</span>}
 
                 </div>
 
-              <div className="mt-3">
-                <input  defaultValue={id?itemDetails?.imagePath : "" } {...register("recipeImage", {
-              onChange: (e) => {
-            const file = e.target.files?.[0];
-            // if (preview) URL.revokeObjectURL(preview);      // نظافة للذاكرة
-            setFileName(file ? file.name : "");
-            setPreview(file ? URL.createObjectURL(file) : "");
-             },
-             })}
-            type="file" id="itemImage" className="d-none"
-                   />
+               <div className="mt-3">
+                  <input
+                    // ❗️ لا value ولا defaultValue
+                    type="file"
+                    id="itemImage"
+                    className="d-none"
+                    disabled={isView}
+                    {...register("recipeImage")}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      setFileName(file ? file.name : "");
+                      setPreview(file ? URL.createObjectURL(file) : "");
+                    }}
+                  />
 {errors.recipeImage && <span className="text-danger">{errors.recipeImage.message}</span>}
 
 
@@ -198,14 +218,13 @@ export default function RecipesData() {
                   type="button"
                   className="btn btn-outline-success px-4 me-5 cancelbtn fw-semibold"
               onClick={()=>navigate("/dashboard/recipes")}  >
-                  Cancel
+                    {isView ? "Back" : "Cancel"}   
                 </button>
-                <button
-                  className="btn btn-success  savebtn fw-semibold"
-                >
-                  {id?'Update':"Save"}
-                 
-                </button>
+               {!isView && (                                         
+                    <button className="btn btn-success savebtn fw-semibold">
+                      {id ? "Update" : "Save"}
+                    </button>
+                  )}
               </div>
             </div>
           </form> }

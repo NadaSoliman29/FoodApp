@@ -50,9 +50,9 @@ function App() {
     {path:'recipes',element: <Recipeslist/>},
     {path:'recipes-data/Add-recipe',element: <RecipesData/>},// addd
     {path:'recipes-data/:id?',element: <RecipesData/>},// edit
-    {path:'categories',element: <CategoriesList/>},
+    {path:'categories',element: <CategoriesList  />},
     {path:'categories-data',element: <CategoriesData/>},
-    {path:'favs',element: <FavList/>},
+    {path:'Favorites',element: <FavList/>},
     {path:'users',element: <UserList/>},
    ]
     }

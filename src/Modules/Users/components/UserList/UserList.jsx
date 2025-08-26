@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import headerImg from '../../../../assets/images/RecipesHeaderimg.png'
 import Header from '../../../Shared/components/Header/Header'
 import axios from 'axios'
@@ -9,10 +9,11 @@ import nodataImage from "../../../../assets/images/nodata.png"
 import { toast } from 'react-toastify'
 import DeleteConfirmation from '../../../Shared/components/DeleteConfirmation/DeleteConfirmation'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import NoRecipesImg from "../../../../assets/images/norecipes.jpg"
 import { axiosInstance, baseImgURL, USERS_URLS } from '../../../../services/Urls'
 import NoUserImage from "../../../../assets/images/noUserImage.png"
+import { AuthContext } from '../../../../Context/AuthContext'
 
 
 export default function UserList() {
@@ -51,7 +52,8 @@ const prevGroup = () => {
       const [nameValue, setNameValue] = useState("")
       const [emailValue, setEmailValue] = useState("")
       const [countryValue, setCountryValue] = useState("")
-
+ let {loginData}= useContext(AuthContext)
+   let navigate = useNavigate()
 
    //  delete model data
    const [show, setShow] = useState(false);
@@ -110,7 +112,13 @@ const prevGroup = () => {
  setCountryValue(input.target.value)
  getAllUsers(4,1,nameValue,emailValue,input.target.value)
   }
-useEffect(() => { getAllUsers(4, 1); }, []);
+useEffect(() => { getAllUsers(4, 1)
+  if(loginData?.userGroup!='SuperAdmin'){
+ navigate("/login");
+ }
+ }, 
+
+[]);
   return (
     <>
      {/* delete model */}

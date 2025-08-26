@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 
 import headerImg from '../../../../assets/images/RecipesHeaderimg.png'
 import Header from '../../../Shared/components/Header/Header'
@@ -11,12 +11,14 @@ import Modal from 'react-bootstrap/Modal';
 import DeleteConfirmation from '../../../Shared/components/DeleteConfirmation/DeleteConfirmation'
 import { toast } from 'react-toastify'
 import { axiosInstance, RECIPES_URLS } from '../../../../services/Urls'
+import { AuthContext } from '../../../../Context/AuthContext'
 
 export default function Recipeslist() {
     const [respiesList, setRespiesList] = useState([])
        const [categoriesList, setCategoriesList] = useState([])
        const [noOfPages, setNoOfPages] = useState([])
           const [nameValue, setNameValue] = useState([])
+          let {loginData}= useContext(AuthContext)
     
        const [itemId, setItemId] = useState(0);
   let getAllRecipes = async(pageSize,pageNumber,name)=>{
@@ -93,7 +95,7 @@ export default function Recipeslist() {
             <h4>Recipes Table Details</h4>
             <p>You can check all details</p>
           </div>
-          <Link to={'/dashboard/recipes-data/Add-recipe'}  className='btn btn  text-white btncolor'> Add New Recipe  </Link>
+           {loginData?.userGroup=='SuperAdmin'? <Link to={'/dashboard/recipes-data/Add-recipe'}  className='btn btn  text-white btncolor'> Add New Recipe  </Link>: ""}
          </div>
          <div className="data p-3">
                 <input type='text' className='form-control  my-2' placeholder='Search by Name...' onChange={getNameValue}/>
@@ -112,6 +114,7 @@ export default function Recipeslist() {
             </thead>
       <tbody>
         {respiesList.map((item)=>
+        
        <tr className=' text-center' key={item.id}>
               <td className="fw-medium text-start">{item.name}</td>
               <td>{item.imagePath ? <img className='table-img' src={`https://upskilling-egypt.com:3006/${item.imagePath}`} alt=''/> : <img className='table-img' src={NoRecipesImg} alt=''/>}</td>
@@ -135,11 +138,12 @@ export default function Recipeslist() {
                   </button>
                  <ul className="dropdown-menu dropdown-menu-end shadow-sm rounded-3 py-2">
                     <li>
-                      <button className="dropdown-item d-flex align-items-center gap-2" >
+                      <Link to={`/dashboard/recipes-data/${item.id}?mode=view`} className="dropdown-item d-flex align-items-center gap-2" >
                         <i className="fa-regular fa-eye maincolor"></i> View
-                      </button>
+                      </Link>
                     </li>
-                     <li>
+                       {loginData?.userGroup=='SuperAdmin'?  <div>
+                       <li>
                       
                       <Link to={`/dashboard/recipes-data/${item.id}`} className="dropdown-item d-flex align-items-center gap-2" >
                         <i className="fa-regular fa-edit maincolor"></i> Edit
@@ -150,6 +154,10 @@ export default function Recipeslist() {
                         <i className="fa-regular fa-trash-can maincolor"></i> Delete
                       </button>
                     </li>
+                    </div>: <Link className="dropdown-item d-flex align-items-center gap-2" >
+                        <i className="fa-regular fa-heart maincolor"></i> Favorit
+                      </Link> }
+                   
                   </ul>
                 </div>
               </td>

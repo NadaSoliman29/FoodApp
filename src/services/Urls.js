@@ -28,6 +28,16 @@ export const CATEGORIES_URLS ={
  DELETE_CATEGORY: (id) =>`/Category/${id}` ,
 
 }
+// Recipes_URLS 
+
+export const FAVS_URLS ={
+ GET_ALL_FAVS : `/userRecipe` ,
+ CREATE_FAVS : `/userRecipe` ,
+ DELETE_FAVS : (id) =>`/userRecipe/${id}` ,
+
+
+
+}
 
 // Recipes_URLS 
 

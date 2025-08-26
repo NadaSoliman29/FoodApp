@@ -232,3 +232,58 @@ white-space: pre-line;
   --bs-pagination-active-bg: #E0E0E0;
   --bs-pagination-active-border-color: #BDBDBD;
 }
+
+.form-control:disabled,
+.form-select:disabled,
+textarea.form-control:disabled {
+  background-color: #eceff1 !important; 
+  color: #37474f !important;           
+  border-color: #cfd8dc !important;
+  opacity: 1;                           
+}
+
+.form-control.bg-white:disabled {
+  background-color: #eceff1 !important;
+  color: #37474f !important;
+  border-color: #cfd8dc !important;
+}
+
+.form-control:disabled::placeholder {
+  color: #90a4ae !important;
+}
+
+.input-group .form-control:disabled + .input-group-text {
+  background-color: #eceff1 !important;
+  color: #37474f !important;
+  border-color: #cfd8dc !important;
+}
+.nf-subtitle {
+  font-size: 27px;
+  font-weight: 400;
+  color: #009247;
+}
+
+.nf-hero {
+  position: relative;
+  min-height: 60vh;            
+  background-repeat: no-repeat;
+  background-position: right bottom;
+  background-size: cover;      
+  padding: 32px 0 0;          
+  overflow: hidden;
+    
+}
+
+
+.nf-ill {
+  max-height: 480px;          
+  object-fit: contain;
+}
+
+@media (max-width: 768px) {
+  .nf-hero {
+    background-size: contain;
+    background-position: center bottom;
+    padding-top: 16px;
+  }
+}

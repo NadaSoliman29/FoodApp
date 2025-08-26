@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import headerImg from '../../../../assets/images/RecipesHeaderimg.png'
 import Header from '../../../Shared/components/Header/Header'
 import axios from 'axios'
@@ -10,6 +10,8 @@ import { toast } from 'react-toastify'
 import DeleteConfirmation from '../../../Shared/components/DeleteConfirmation/DeleteConfirmation'
 import { useForm } from 'react-hook-form'
 import { axiosInstance, CATEGORIES_URLS } from '../../../../services/Urls'
+import { AuthContext } from '../../../../Context/AuthContext'
+import { useNavigate } from 'react-router-dom'
 
 export default function CategoriesList() {
    const [categoriesList, setCategoriesList] = useState([])
@@ -18,7 +20,8 @@ export default function CategoriesList() {
 
    const [itemId, setItemId] = useState(0);
   const { register, handleSubmit, formState:{ errors, isSubmitting }, reset } = useForm();
-   
+          let {loginData}= useContext(AuthContext)
+   let navigate = useNavigate()
    //  delete model data
    const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
@@ -29,7 +32,7 @@ export default function CategoriesList() {
 
   //add model data 
  const [showForm, setShowForm] = useState(false);
-  const [mode, setMode] = useState('add'); // 'add' | 'edit'
+   const [mode, setMode] = useState('add'); // 'add' | 'edit' | 'view'
   const [editingItem, setEditingItem] = useState(null);
    const [showadd, setShowAdd] = useState(false);
   const handleCloseAdd = () => setShowAdd(false);
@@ -51,7 +54,17 @@ export default function CategoriesList() {
     reset({ name: item?.name || '' });
     setShowForm(true);
   };
-
+  // const openView = (item) => {
+  //   setMode('view');
+  //   setEditingItem(item);
+  //   reset({ name: item?.name || '' });
+  //   setShowForm(true);
+  // };
+  const openView = (item) => {
+  setMode('view');
+  setEditingItem(item);
+  setShowForm(true);
+};
   const closeForm = () => setShowForm(false);
 
    let deleteCategory = async(id)=>{
@@ -114,6 +127,9 @@ export default function CategoriesList() {
   }
   useEffect(() => {
  getAllData(4,1)
+ if(loginData?.userGroup!='SuperAdmin'){
+ navigate("/login");
+ }
   }, [])
  
     
@@ -122,29 +138,71 @@ export default function CategoriesList() {
    <>
 
   {/* Add  & edit model */}
-  <Modal show={showForm} onHide={closeForm}>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Modal.Header closeButton>
-            {mode === 'add' ? 'Add Category' : 'Edit Category'}
-          </Modal.Header>
-          <Modal.Body>
-            <div className="input-group my-2">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Category Name"
-                {...register('name', { required: 'Name is Required' })}
-              />
-            </div>
-            {errors.name && <p className="text-danger mb-1 errormsg">{errors.name.message}</p>}
-          </Modal.Body>
-          <Modal.Footer>
-            <Button disabled={isSubmitting} type="submit" className="btn btn-success ">
-              {mode === 'add' ? 'Save' : 'Update'}
-            </Button>
-          </Modal.Footer>
-        </form>
-      </Modal>
+<Modal show={showForm} onHide={closeForm}>
+  {mode === 'view' ? (
+    <>
+      <Modal.Header closeButton>View Category</Modal.Header>
+      <Modal.Body>
+        <div className="mb-3">
+          <div className="text-muted small">ID</div>
+          <div className="fw-semibold">{editingItem?.id ?? '-'}</div>
+        </div>
+
+        <div className="mb-3">
+          <div className="text-muted small">Name</div>
+          <div className="fw-semibold">{editingItem?.name ?? '-'}</div>
+        </div>
+
+        <div className="mb-3">
+          <div className="text-muted small">Creation Date</div>
+          <div className="fw-semibold">{editingItem?.creationDate ?? '-'}</div>
+        </div>
+
+        <div className="mb-1">
+          <div className="text-muted small">Modification Date</div>
+          <div className="fw-semibold">{editingItem?.modificationDate ?? '-'}</div>
+        </div>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={closeForm}>
+          Back
+        </Button>
+      </Modal.Footer>
+    </>
+  ) : (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Modal.Header closeButton>
+        {mode === 'add' ? 'Add Category' : 'Edit Category'}
+      </Modal.Header>
+      <Modal.Body>
+        <div className="input-group my-2">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Category Name"
+            {...register('name', { required: 'Name is Required' })}
+          />
+        </div>
+        {errors.name && (
+          <p className="text-danger mb-1 errormsg">{errors.name.message}</p>
+        )}
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={closeForm}>
+          Cancel
+        </Button>
+        <Button
+          disabled={isSubmitting}
+          type="submit"
+          className="btn btn-success"
+        >
+          {mode === 'add' ? 'Save' : 'Update'}
+        </Button>
+      </Modal.Footer>
+    </form>
+  )}
+</Modal>
+
 
   {/* Add model */}
 
@@ -210,10 +268,10 @@ export default function CategoriesList() {
                   </button>
                   <ul className="dropdown-menu dropdown-menu-end shadow-sm rounded-3 py-2">
                     <li>
-                      <button className="dropdown-item d-flex align-items-center gap-2">
-                        <i className="fa-regular fa-eye maincolor"></i> View
-                      </button>
-                    </li>
+                            <button className="dropdown-item d-flex align-items-center gap-2"   onClick={() => openView(item)}>
+                              <i className="fa-regular fa-eye maincolor"></i> View
+                            </button>
+                          </li>
                      <li>
                       <button
                               className="dropdown-item d-flex align-items-center gap-2"
