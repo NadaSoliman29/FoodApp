@@ -17,6 +17,7 @@ export default function CategoriesList() {
    const [categoriesList, setCategoriesList] = useState([])
    const [noOfPages, setNoOfPages] = useState([])
    const [nameValue, setNameValue] = useState([])
+    const [isLoading, setIsLoading] = useState(true);
 
    const [itemId, setItemId] = useState(0);
   const { register, handleSubmit, formState:{ errors, isSubmitting }, reset } = useForm();
@@ -84,7 +85,8 @@ export default function CategoriesList() {
    }
   
   let getAllData = async(pageSize,pageNumber,name)=>{
-      try {
+       setIsLoading(true); 
+    try {
          let response = await axiosInstance.get(`${CATEGORIES_URLS.GET_ALL_CATEGORIES}`, 
            {
              params:
@@ -97,7 +99,9 @@ export default function CategoriesList() {
          setNoOfPages(Array(response.data.totalNumberOfPages).fill().map((_,i)=>i+1))
        } catch (error) {
          console.log(error)
-       }
+       } finally{
+            setIsLoading(false);
+         }
   }
 
 // add category
@@ -231,7 +235,13 @@ export default function CategoriesList() {
      <div className="data p-3">
               <input type='text' className='form-control  my-2' placeholder='Search by Name...' onChange={getNameValue}/>
 
-      {categoriesList.length>0?   <div className="table-wrap rounded-4 ">
+      {isLoading ? (
+    <div
+      className="d-flex justify-content-center align-items-center py-5"
+      style={{ minHeight: 220 }}
+    >
+      <i className="fa-solid fa-spinner fa-spin-pulse text-success fs-1"></i>
+    </div>):categoriesList.length>0?   <div className="table-wrap rounded-4 ">
    
     <table className="table mb-0 align-middle ">
     <thead className="bg-light">
@@ -246,7 +256,13 @@ export default function CategoriesList() {
           </tr>
         </thead>
   <tbody >
-    {categoriesList.map((item)=>
+    {isLoading ? (
+    <div
+      className="d-flex justify-content-center align-items-center py-5"
+      style={{ minHeight: 220 }}
+    >
+      <i className="fa-solid fa-spinner fa-spin-pulse text-success fs-1"></i>
+    </div>):categoriesList.map((item)=>
     <tr className=' text-center' key={item.id}>
       <td>{item.id}</td>
       <td>{item.name}</td>

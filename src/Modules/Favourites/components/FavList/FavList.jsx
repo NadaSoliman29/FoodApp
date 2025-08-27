@@ -17,6 +17,8 @@ import DeleteConfirmation from "../../../Shared/components/DeleteConfirmation/De
 
 export default function FavList() {
   const [itemId, setItemId] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
+  
   //  delete model data
  const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
@@ -29,13 +31,16 @@ export default function FavList() {
   const [favList, setFavList] = useState([]);
 
   let getAllFavs = async () => {
+      setIsLoading(true);
     try {
       let response = await axiosInstance.get(`${FAVS_URLS.GET_ALL_FAVS}`);
 
       setFavList(response.data.data);
     } catch (error) {
       console.log(error);
-    }
+    }  finally{
+            setIsLoading(false);
+         }
   };
 
   let deleteFav = async (id) => {
@@ -92,7 +97,13 @@ export default function FavList() {
       </div>
       <div className=" containern p-5">
  <div className="row g-4 align-items-stretch">
-          {favList.length > 0 ? (
+          {isLoading ? (
+    <div
+      className="d-flex justify-content-center align-items-center py-5"
+      style={{ minHeight: 220 }}
+    >
+      <i className="fa-solid fa-spinner fa-spin-pulse text-success fs-1"></i>
+    </div>):favList.length > 0 ? (
             favList.map((item) => (
       <div className="col-md-4 d-flex mb-4" key={item.id}>
         <div className="card card-fixed favimg h-100">

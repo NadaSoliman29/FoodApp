@@ -52,8 +52,10 @@ const prevGroup = () => {
       const [nameValue, setNameValue] = useState("")
       const [emailValue, setEmailValue] = useState("")
       const [countryValue, setCountryValue] = useState("")
- let {loginData}= useContext(AuthContext)
-   let navigate = useNavigate()
+      const [isLoading, setIsLoading] = useState(true);
+           
+      let {loginData}= useContext(AuthContext)
+      let navigate = useNavigate()
 
    //  delete model data
    const [show, setShow] = useState(false);
@@ -63,9 +65,18 @@ const prevGroup = () => {
     setShow(true);
   }
 
-  //add model data 
- const [showForm, setShowForm] = useState(false);
-  const [mode, setMode] = useState('add'); // 'add' | 'edit'
+  //view  model data 
+const [showView, setShowView] = useState(false);
+const [viewUser, setViewUser] = useState(null);
+
+const openView = (user) => {
+  setViewUser(user);
+  setShowView(true);
+};
+const closeView = () => {
+  setShowView(false);
+  setViewUser(null);
+};
 
 
    let deleteUser = async(id)=>{
@@ -88,7 +99,9 @@ const prevGroup = () => {
   
  let getAllUsers = async (ps = pageSize, pn = currentPage,  userName = nameValue,
   email = emailValue, country=countryValue) => {
-  try {
+    setIsLoading(true);
+
+    try {
     const response = await axiosInstance.get(`${USERS_URLS.GETUSERS}`, {
       params: { pageSize: ps, pageNumber: pn ,userName,email,country},
     });
@@ -98,7 +111,9 @@ const prevGroup = () => {
     setCurrentPage(pn);
   } catch (error) {
     console.log(error);
-  }
+  }finally{
+            setIsLoading(false);
+         }
 };
   const getNameValue =(input)=>{
  setNameValue(input.target.value)
@@ -121,6 +136,58 @@ useEffect(() => { getAllUsers(4, 1)
 []);
   return (
     <>
+
+
+    {/* view model*/ }
+    <Modal show={showView} onHide={closeView} centered>
+  <Modal.Header closeButton>
+    <Modal.Title>User Details</Modal.Title>
+  </Modal.Header>
+
+  <Modal.Body>
+    {viewUser && (
+      <>
+        <div className="d-flex align-items-center gap-3 mb-3">
+          <img
+            src={viewUser.imagePath ? `${baseImgURL}${viewUser.imagePath}` : NoUserImage}
+            alt="user"
+            className="rounded-circle"
+            style={{ width: 64, height: 64, objectFit: "cover" }}
+          />
+          <div>
+            <h5 className="mb-0">{viewUser.userName}</h5>
+            <small className="text-muted">{viewUser.email}</small>
+          </div>
+        </div>
+
+        <div className="row g-3">
+          <div className="col-12 col-md-6">
+            <label className="form-label mb-1">Phone Number</label>
+            <input className="form-control" value={viewUser.phoneNumber || ""} disabled />
+          </div>
+          <div className="col-12 col-md-6">
+            <label className="form-label mb-1">Country</label>
+            <input className="form-control" value={viewUser.country || ""} disabled />
+          </div>
+          <div className="col-12">
+            <label className="form-label mb-1">Email</label>
+            <input className="form-control" value={viewUser.email || ""} disabled />
+          </div>
+          <div className="col-12">
+            <label className="form-label mb-1">User Name</label>
+            <input className="form-control" value={viewUser.userName || ""} disabled />
+          </div>
+        </div>
+      </>
+    )}
+  </Modal.Body>
+
+  <Modal.Footer>
+    <Button variant="secondary" onClick={closeView}>
+      Close
+    </Button>
+  </Modal.Footer>
+</Modal>
      {/* delete model */}
         <Modal show={show} onHide={handleClose}>
           <Modal.Header closeButton></Modal.Header>
@@ -157,7 +224,13 @@ useEffect(() => { getAllUsers(4, 1)
 </div>
 
 
-            {usersList.length>0?   <div className="table-wrap rounded-4 ">
+            {isLoading ? (
+    <div
+      className="d-flex justify-content-center align-items-center py-5"
+      style={{ minHeight: 220 }}
+    >
+      <i className="fa-solid fa-spinner fa-spin-pulse text-success fs-1"></i>
+    </div>):usersList.length>0?   <div className="table-wrap rounded-4 ">
           <table className="table mb-0 align-middle ">
           <thead className="bg-light">
                 <tr className=' text-center'>
@@ -194,7 +267,7 @@ useEffect(() => { getAllUsers(4, 1)
                   </button>
                  <ul className="dropdown-menu dropdown-menu-end shadow-sm rounded-3 py-2">
                     <li>
-                      <button className="dropdown-item d-flex align-items-center gap-2" >
+                      <button    onClick={() => openView(item)} className="dropdown-item d-flex align-items-center gap-2" >
                         <i className="fa-regular fa-eye maincolor"></i> View
                       </button>
                     </li>

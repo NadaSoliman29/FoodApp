@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 
 import { data, Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
@@ -8,6 +8,8 @@ import logo from '../../../../assets/images/logo (2).png'
 import { AuthContext } from '../../../../Context/AuthContext';
 
 export default function Login() {
+  const [showPassword, setShowPassword] = useState(false);
+const togglePassword = () => setShowPassword((v) => !v);
   let {register,formState:{errors ,isSubmitting},handleSubmit} = useForm();
   let navigate = useNavigate()
   let {getLoginData}= useContext(AuthContext)
@@ -58,7 +60,19 @@ export default function Login() {
                value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/,
                message:"The password must include at least one lowercase letter, one uppercase letter, one digit, one special character, and be at least 6 characters long."
               }
-                })} type="password" className="form-control border-0" placeholder="Password" aria-label="Password" aria-describedby="basic-addon1" />
+                })}     type={showPassword ? 'text' : 'password'}  className="form-control border-0"  placeholder="Password"
+ aria-label="Password" aria-describedby="pwd-addon pwd-toggle" autoComplete="current-password"/>
+   <button
+    type="button"
+    className="input-group-text border-0 bg-transparent"
+    id="pwd-toggle"
+    onClick={togglePassword}
+    aria-label={showPassword ? 'Hide password' : 'Show password'}
+    aria-pressed={showPassword}
+    style={{ cursor: 'pointer' }}
+  >
+    <i className={`fa-regular ${showPassword ? 'fa-eye-slash' : 'fa-eye'} iconcolor`} />
+  </button>
                    </div>
                    {errors.password&&<div className='text-danger mb-1'>{errors.password.message}</div>}
                    <div className="links d-flex justify-content-between my-2">
