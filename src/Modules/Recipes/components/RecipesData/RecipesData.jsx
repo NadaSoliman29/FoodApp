@@ -100,6 +100,7 @@ export default function RecipesData() {
       //  toast.error(error.response?.data?.message || "Try Again");
     }
   };
+  
   useEffect(() => {
     getAllTags();
     getAllCategories();
@@ -169,7 +170,7 @@ export default function RecipesData() {
 
                <div className="mt-3">
                   <input
-                    // ❗️ لا value ولا defaultValue
+                   
                     type="file"
                     id="itemImage"
                     className="d-none"
