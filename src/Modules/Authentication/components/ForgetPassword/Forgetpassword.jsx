@@ -48,7 +48,7 @@ export default function Forgetpassword() {
                    <button disabled={isSubmitting} className='btn btn w-100 text-white btncolor'> Submit</button>
             </form>
             </div>
-            /</div>
+            </div>
   </>
   )
 }
