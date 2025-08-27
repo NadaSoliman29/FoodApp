@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import FillRecipes from "../../../Shared/components/FillRecipes/FillRecipes";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { baseImgURL } from "../../../../services/Urls";
 
 export default function RecipesData() {
   const {id} = useParams()
@@ -18,7 +19,7 @@ export default function RecipesData() {
     let [isLoading, setIsLoading] = useState(true);
   let {register,formState:{errors} , handleSubmit,reset } = useForm()
     let navigate = useNavigate()
-  
+   let fileinput = useRef()
     const appendToFormData=(data)=>{
         const logFormData = new FormData();
      logFormData.append("name",data?.name);
@@ -26,29 +27,51 @@ export default function RecipesData() {
      logFormData.append("price",data?.price );
      logFormData.append("categoriesIds",data?.categoriesIds);
      logFormData.append("description",data?.description);
-    //  logFormData.append("recipeImage",data?.recipeImage[0]);
-      if (data?.recipeImage && data.recipeImage[0]) {
-      logFormData.append("recipeImage", data.recipeImage[0]);
-    }
+     logFormData.append("recipeImage",fileinput.current.files[0]);
+
+    // logFormData.append("recipeImage",data?.recipeImage[0]);
+
+    //   if (data?.recipeImage && data.recipeImage[0]) {
+    //   logFormData.append("recipeImage", data.recipeImage[0]);
+    // }
+    
         return logFormData
    }
+
   //  AddItemApi
   let onSubmit =async(data)=>{
   let recipeData = appendToFormData(data);
-   try {
+  if(id){
+ try {
+      let response = await axios.put(
+        `https://upskilling-egypt.com:3006/api/v1/Recipe/${id}`,recipeData,
+        { headers: { Authorization: localStorage.getItem("token") } }
+      );
+     
+      
+           toast.success(response?.data?.message||" Recipe Updated successfully");
+                navigate('/dashboard/recipes')
+    } catch (error) {
+   
+           toast.error(error.response?.data?.message || "Something went wrong"); 
+    }
+  }else{
+ try {
       let response = await axios.post(
         "https://upskilling-egypt.com:3006/api/v1/Recipe/",recipeData,
         { headers: { Authorization: localStorage.getItem("token") } }
       );
-      console.log(response);
+     
       
            toast.success(response?.data?.message||" Recipe created successfully");
                 navigate('/dashboard/recipes')
     } catch (error) {
-      console.log(error);
-           toast.error(error.response?.data?.message || "Something went wrong");
-      
+          toast.error(error.response?.data?.message || "Something went wrong");
+    
+           toast.error(error.response?.data?.message || "Something went wrong"); 
     }
+  }
+  
   }
      //  GetitemDetails
 
@@ -58,7 +81,7 @@ export default function RecipesData() {
         `https://upskilling-egypt.com:3006/api/v1/Recipe/${id}`, 
         { headers: { Authorization: localStorage.getItem("token") } }
       );
-      console.log(response)
+     
         setItemDetails(response.data)
          reset({
         name: data?.name ?? "",
@@ -66,15 +89,18 @@ export default function RecipesData() {
         price: data?.price ?? "",
         categoriesIds: data?.category?.[0]?.id ?? "",
         description: data?.description ?? "",
+        recipeImage: fileinput.current.files[0],
+
+        
       });
     } catch (error) {
-      console.log(error);
+     
       
     }
          setIsLoading(false)
 
   }
-
+ 
   let getAllCategories = async () => {
     try {
       let response = await axios.get(
@@ -84,7 +110,7 @@ export default function RecipesData() {
 
       setCategoriesList(response.data.data);
     } catch (error) {
-      console.log(error);
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
   let getAllTags = async () => {
@@ -100,18 +126,13 @@ export default function RecipesData() {
       //  toast.error(error.response?.data?.message || "Try Again");
     }
   };
-  
   useEffect(() => {
     getAllTags();
     getAllCategories();
     if(id)
     getItemDetails()
-  console.log(itemDetails)
   }, []);
 
-    const existingImageUrl = itemDetails?.imagePath
-    ? `https://upskilling-egypt.com:3006/${itemDetails.imagePath}`
-    : "";
   return (
     <>
       <FillRecipes id={id} />
@@ -170,19 +191,25 @@ export default function RecipesData() {
 
                <div className="mt-3">
                   <input
-                   
+                
                     type="file"
                     id="itemImage"
                     className="d-none"
                     disabled={isView}
+                
                     {...register("recipeImage")}
-                    onChange={(e) => {
+                       ref={(e)=>{
+            fileinput.current= e ;
+            register("recipeImage").ref(e);
+                   }}
+
+                   onChange={(e) => {
                       const file = e.target.files?.[0];
-                      setFileName(file ? file.name : "");
-                      setPreview(file ? URL.createObjectURL(file) : "");
-                    }}
+                    setFileName(file ? file.name : "");
+                    setPreview(file ? URL.createObjectURL(file) : "");
+                     }}
                   />
-{errors.recipeImage && <span className="text-danger">{errors.recipeImage.message}</span>}
+     {errors.recipeImage && <span className="text-danger">{errors.recipeImage.message}</span>}
 
 
                 <label
@@ -204,11 +231,10 @@ export default function RecipesData() {
         )}
 
         
-        {preview && (
-          <div className="mt-2">
-            <img src={preview} alt="preview" className="img-preview" />
-          </div>
-        )}
+        {preview || itemDetails?.imagePath ?   <div className="mt-2">
+            <img src={ preview? preview : `${baseImgURL}${itemDetails?.imagePath}` } alt="preview" className="img-preview" />
+          </div> :" "  }
+        
                 </label>
 
               </div>

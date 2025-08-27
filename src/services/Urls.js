@@ -7,6 +7,17 @@ export const baseImgURL =`https://upskilling-egypt.com:3006/`
 export const axiosInstance = axios.create({ baseURL,
    headers:{Authorization:localStorage.getItem("token")}
 })
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization =  token;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+ 
 
 // USERS_URLS
 
@@ -34,8 +45,6 @@ export const FAVS_URLS ={
  GET_ALL_FAVS : `/userRecipe` ,
  CREATE_FAVS : `/userRecipe` ,
  DELETE_FAVS : (id) =>`/userRecipe/${id}` ,
-
-
 
 }
 

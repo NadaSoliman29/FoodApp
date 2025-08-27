@@ -27,7 +27,7 @@ export default function SideBar({ setLoginData}) {
   return (
   <>
   <div className="container-sidebar">
-    <Sidebar collapsed={isCollapse} className=' position-fixed sidebar '>
+    <Sidebar collapsed={isCollapse} className=' position-fixed sidebar h-100 '>
   <Menu>
      
   <img onClick={toggleCollapse} className='cursor-pointer my-4 w-50 mx-3' src={logoside} alt=""  />

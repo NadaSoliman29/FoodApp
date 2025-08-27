@@ -24,7 +24,7 @@ export default function Recipeslist() {
   const [nameValue, setNameValue] = useState([]);
   let { loginData } = useContext(AuthContext);
   const [addingId, setAddingId] = useState(null);
-  const [favIds, setFavIds] = useState(new Set());
+  const [favIds, setFavIds] = useState([]);
   const [itemId, setItemId] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -77,50 +77,38 @@ export default function Recipeslist() {
   };
 
   const addToFav = async (id, nameFromUI) => {
-    if (favIds?.has?.(id)) {
-      toast.info(`${nameFromUI || "Recipe"} is already in your favorites`);
-      return;
+    if(!(favIds?.some(favItem => favItem?.recipe?.id == id )))
+    {
+      try {
+        const response = await axiosInstance.post(FAVS_URLS.CREATE_FAVS, {
+          recipeId: id,
+        });
+  
+        // const recipeName = nameFromUI || response?.data?.recipe?.name || "Recipe";
+  
+        getAllFav();
+  
+        toast.success(`${nameFromUI} added to your favorites list`);
+      } catch {
+              toast.error(error.response?.data?.message || "Something went wrong");
+        
+      }
+    }
+    else{
+      toast.info(`${nameFromUI} already in your favorites list`)
     }
 
-    if (addingId === id) return;
-    setAddingId(id);
+    // } finally {
+    //   setAddingId(null);
+    // }
+  };
 
+  let getAllFav = async () => {
     try {
-      const { data } = await axiosInstance.post(FAVS_URLS.CREATE_FAVS, {
-        recipeId: id,
-      });
-
-      const recipeName = nameFromUI || data?.recipe?.name || "Recipe";
-
-      setFavIds((prev) => {
-        const next = new Set(prev);
-        next.add(id);
-        return next;
-      });
-
-      toast.success(`${recipeName} added to your favorites list`);
+      let response = await axiosInstance.get(FAVS_URLS.GET_ALL_FAVS);
+      setFavIds(response.data.data);
     } catch (error) {
-      const apiName = error?.response?.data?.recipe?.name;
-      const recipeName = nameFromUI || apiName || "Recipe";
-      const rawMsg = error?.response?.data?.message;
-      const msg = typeof rawMsg === "string" ? rawMsg.toLowerCase() : "";
-
-      if (msg.includes("already") || msg.includes("exist")) {
-        setFavIds((prev) => {
-          const next = new Set(prev);
-          next.add(id);
-          return next;
-        });
-        toast.info(`${recipeName} is already in your favorites`);
-      } else {
-        toast.error(
-          rawMsg
-            ? `${recipeName}: ${rawMsg}`
-            : `Couldn't add "${recipeName}" to favorites`
-        );
-      }
-    } finally {
-      setAddingId(null);
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
 
@@ -129,6 +117,9 @@ export default function Recipeslist() {
     getAllRecipes(4, 1, input.target.value);
   };
   useEffect(() => {
+    if (loginData?.userGroup != "SuperAdmin") {
+      getAllFav();
+    }
     getAllRecipes(4, 1);
   }, []);
 
@@ -254,7 +245,7 @@ export default function Recipeslist() {
                                   to={`/dashboard/recipes-data/${item.id}`}
                                   className="dropdown-item d-flex align-items-center gap-2"
                                 >
-                                  <i className="fa-regular fa-edit maincolor"></i>{" "}
+                                  <i className="fa-regular fa-edit maincolor"></i>
                                   Edit
                                 </Link>
                               </li>
@@ -269,25 +260,18 @@ export default function Recipeslist() {
                               </li>
                             </div>
                           ) : (
-                            <Link
+                            <button
                               onClick={() => addToFav(item.id, item.name)}
                               className="dropdown-item d-flex align-items-center gap-2"
                               disabled={addingId === item.id}
                               aria-disabled={addingId === item.id}
                             >
-                              <i
-                                className={
-                                  favIds.has(item.id)
-                                    ? "fa-solid fa-heart text-success"
-                                    : "fa-regular fa-heart maincolor"
+                            
+                             { favIds?.some(favItem => favItem?.recipe?.id == item.id ) ?   <i className="fa-solid fa-heart text-success"></i>
+                                  : <i  title="favourits" className="fa-regular fa-heart maincolor"></i>
                                 }
-                              ></i>
-                              {addingId === item.id
-                                ? "Adding..."
-                                : favIds.has(item.id)
-                                ? "Favorited"
-                                : "Favorite"}{" "}
-                            </Link>
+                              Favourit
+                            </button>
                           )}
                         </ul>
                       </div>
@@ -310,6 +294,7 @@ export default function Recipeslist() {
               </li>
               {noOfPages.map((pageNo) => (
                 <li
+                  key={pageNo}
                   onClick={() => getAllRecipes(4, pageNo)}
                   className="page-item cursor-pointer"
                 >
